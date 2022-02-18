@@ -1,9 +1,9 @@
 import React, { StrictMode } from 'react'
-import { hydrate, render } from 'react-dom'
+// import { hydrate, render } from 'react-dom'
 import { Routes } from './routes';
 import {BrowserRouter} from "react-router-dom";
 
-const App = () => {
+export const Client = () => {
     return (
         <StrictMode>
             <BrowserRouter>
@@ -13,7 +13,7 @@ const App = () => {
     )
 }
 
-const app = document.querySelector('#app') as Element
+// const app = document.querySelector('#app') as Element
 
-if (app.hasChildNodes()) hydrate(<App />, app)
-else render(<App />, app)
+// if (app.hasChildNodes()) hydrate(<App />, app)
+// else render(<App />, app)

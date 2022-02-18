@@ -1,0 +1,8 @@
+{
+    "name": "reactica/client",
+    "private": true,
+    "main": "../lib/cjs/client.js",
+    "jsnext:main": "../lib/esm/client.js",
+    "module": "../lib/esm/client.js",
+    "types": "../lib/esm/client.d.ts"
+}

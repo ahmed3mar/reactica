@@ -1,0 +1,7 @@
+{
+  "name": "reactica/router",
+  "private": true,
+  "main": "../lib/cjs/router.js",
+  "module": "../lib/esm/router.js",
+  "types": "../lib/esm/router.d.ts"
+}
