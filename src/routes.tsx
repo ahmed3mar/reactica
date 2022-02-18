@@ -121,20 +121,44 @@ export const Routes = () => {
     const App = l[0] || Fragment;
     const routes = l[1] || [];
 
-    const renderRoutes = (routes: any) => {
+    const renderRoutes = (prefix = '', routes: any) => {
         // @ts-ignore
-        return routes.map(({ children, ...route }, index) => (
-            children ? (
-                <Route key={index} {...route}>
-                    {renderRoutes(children)}
-                </Route>
-            ) : (
-                <Route key={index} {...route} />
+        return routes.map(({ children, ...route }, index) => {
+
+            if (children) {
+                const hasIndex = children.find((child: any) => child.path === '/');
+                let child;
+                if (hasIndex) {
+                    child = hasIndex.element;
+                }
+                console.log('----> PATH ', route.path)
+
+                return (
+                    <Route key={index} {...route} element={child}>
+                        {renderRoutes(route.path, children)}
+                    </Route>
+                )
+            }
+
+            if (prefix && route.path == '/') return null;
+
+            console.log('----> PATH ', route.path)
+
+            return <Route key={index} {...route} />
+
+            (
+                children ? (
+                    <Route key={index} {...route}>
+                        {renderRoutes(prefix, children)}
+                    </Route>
+                ) : (
+                    <Route key={index} {...route} />
+                )
             )
-        ))
+        })
     }
 
-    console.log(routes);
+    console.log('routes', routes)
 
     return (
         <RouterProvider routes={routes}>
@@ -143,7 +167,7 @@ export const Routes = () => {
                 <RoutesRouter>
                     {
                         // @ts-ignore
-                        renderRoutes(routes)
+                        renderRoutes('', routes)
                     }
                 </RoutesRouter>
             </App>
