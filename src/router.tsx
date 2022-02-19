@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo } from 'react'
-import {useParams} from 'react-router-dom'
+import {useLocation, useParams} from 'react-router-dom'
 
 type RouterContext = {
     routes: any,
@@ -37,11 +37,13 @@ export const RouterProvider = ({ routes, children }: { routes: any, children: Re
 export const useRouter = () => {
     const context = useContext(RouterContext)
     const params = useParams();
+    const location = useLocation();
     
     if (!context) throw Error('useRouter should be used within <RouterProvider />')
     return {
         ...context,
         params,
+        ...location,
     }
 }
 

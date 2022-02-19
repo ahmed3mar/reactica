@@ -3,11 +3,11 @@ import React, { StrictMode } from 'react'
 import { Routes } from './routes';
 import {BrowserRouter} from "react-router-dom";
 
-export const Client = () => {
+export const Client = (props: any) => {
     return (
         <StrictMode>
             <BrowserRouter>
-                <Routes />
+                <Routes {...props} />
             </BrowserRouter>
         </StrictMode>
     )

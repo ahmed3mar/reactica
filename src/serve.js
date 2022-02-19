@@ -56,7 +56,7 @@ async function createServer(
             const url = req.originalUrl;
 
             console.log(`[${req.method}] ${url}`)
-            const { routes } = await vite.ssrLoadModule('/src/server.tsx')
+            const { routes } = await vite.ssrLoadModule('src/server.tsx')
 
             const matches = routes.reduce((founded, route) => {
                 const match = matchPath(url, route.path, route);
