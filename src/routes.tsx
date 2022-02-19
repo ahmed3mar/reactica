@@ -64,9 +64,9 @@ export const loadRoutes = (context: any, pages: any) => {
             component: module?.default ? module.default : Fragment,
             element: (
                 <Guard
-                app={App}
-                path={path}
-                context={context}
+                    app={App}
+                    path={path}
+                    context={context}
                     component={module?.default ? module.default : Fragment}
                     // component={lazy(module)}
                     {...(module?.meta || {})}

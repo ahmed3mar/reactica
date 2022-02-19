@@ -9,7 +9,7 @@ const RouterContext = createContext<RouterContext | null>(null);
 
 export const RouterProvider = ({ routes, children }: { routes: any, children: React.ReactNode }) => {
     const value = //useMemo(
-        // () => 
+                  // () =>
         ({
             routes,
             getRouteByName: (name: string, args: any) => {
@@ -38,7 +38,7 @@ export const useRouter = () => {
     const context = useContext(RouterContext)
     const params = useParams();
     const location = useLocation();
-    
+
     if (!context) throw Error('useRouter should be used within <RouterProvider />')
     return {
         ...context,

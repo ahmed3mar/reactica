@@ -1,3 +1,4 @@
+import { stat } from "fs";
 import React, { Fragment, Suspense, useEffect, useState } from "react";
 import { useAuth } from "./auth";
 
@@ -8,8 +9,14 @@ const SSR = ({ app: App, component: Component, context, path, ...props }: any) =
 
     let { state, ...otherContext } = context;
 
+    if (!state) {
+        state = {};
+    }
+
     let newState = state;
-    newState = {};
+    newState = state.page === path ? state.props : {};
+
+    // console.log('state', isBrowser, state)
 
     let doRequest = true;
 
@@ -20,10 +27,10 @@ const SSR = ({ app: App, component: Component, context, path, ...props }: any) =
         if (window.__INITIAL_DATA === null) {
 
         } else {
-            if (!state[path]) {
+            if (!state || state?.page !== path) {
                 newState = {}
             } else {
-                newState = {...state[path]};
+                newState = {...state.props};
                 // @ts-ignore
                 doRequest = false;
             }
@@ -51,7 +58,7 @@ const SSR = ({ app: App, component: Component, context, path, ...props }: any) =
             // @ts-ignore
             window.__INITIAL_DATA = null;
 
-            if (!state[path] || doRequest) {
+            if (!state || state?.page !== path || doRequest) {
                 // @ts-ignore
                 newState = {}
 
@@ -96,10 +103,9 @@ const SSR = ({ app: App, component: Component, context, path, ...props }: any) =
                 // }
 
             } else {
-                newState = state;
+                newState = state?.props;
             }
         }
-
 
     }, [isBrowser ? location.pathname : null]);
 

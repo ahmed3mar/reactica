@@ -18,7 +18,7 @@ async function createServer(
     const resolve = (p) => path.resolve(__dirname, p)
 
     const indexProd = isProd
-        ? fs.readFileSync(resolve('../../dist/index.html'), 'utf-8')
+        ? fs.readFileSync(resolve('../../.next2/index.html'), 'utf-8')
         : ''
 
     const app = express()
@@ -50,7 +50,7 @@ async function createServer(
         //         index: false
         //     })
         // )
-        app.use(staticServe(resolve('../../dist/assets'), {
+        app.use(staticServe(resolve('../../.next2/assets'), {
             index: false,
             // mode: "live"
         }));
@@ -62,53 +62,54 @@ async function createServer(
             const urlNoLanguage = url.replace('/ar/', '/').replace('/en/', '/').replace('/ar', '/')
 
             // console.log(`[${req.method}] ${url}`)
-            
+
             let routes;
             let serverFile;
 
             if (!isProd) {
-                routes = (await vite.ssrLoadModule('./src/core/routes.tsx')).routes;
+                routes = (await vite.ssrLoadModule('./src/server.tsx')).routes;
             } else {
-                serverFile = require('../..//build/server/dist/server.js');
+                serverFile = require('../../.next2/server/dist/server.js');
                 routes = serverFile.routes;
             }
 
-
-            const matches = routes.map((route, index) => {
-                const match = matchPath(urlNoLanguage, route.path, route);
-                // We then look for static getInitialData function on each top level component
-                if (match) {
-                    const obj = {
-                        route,
-                        match,
-                        promise: route.element.getInitialData
-                            ? route.element.getInitialData({ match, req, res })
-                            : Promise.resolve(null),
-                    };
-                    return obj;
-                }
-                return null;
-            });
-
-            if (matches.length === 0) {
-                return res.status(404).send('Not Found');
+            const matchedRoute = routes.find(route => matchPath(urlNoLanguage, route.path))
+            if (!matchedRoute) {
+                return res.status(404).send('Not Found');;
             }
-            // Now we pull out all the promises we found into an array.
-            const promises = matches.map(match => (match ? match.promise : null));
-            const data = await Promise.all(promises)
+
+            let data = {
+                "props":{},
+                "page": matchedRoute.path,
+                "query":{},
+                // "buildId":"7E2tFlrzYeS1BKg21-QvO",
+                "isFallback":false,
+                "gip":true,
+                "appGip":true,
+                "scriptLoader":[]
+            };
+            if (matchedRoute.element.props.app.getInitialProps) {
+                data['props'] = await matchedRoute.element.props.app.getInitialProps(matchedRoute.component)
+                // data.index = routes.findIndex(route => matchPath(urlNoLanguage, route))
+            } else if (matchedRoute.component) {
+                data['props'] = await matchedRoute.component()
+            }
 
             let template, render
             if (!isProd) {
                 // always read fresh template in dev
                 template = fs.readFileSync(resolve('../../index.html'), 'utf-8')
                 template = await vite.transformIndexHtml(url, template)
-                render = (await vite.ssrLoadModule('/src/core/server.tsx')).render
+                render = (await vite.ssrLoadModule('/src/server.tsx')).render
             } else {
                 template = indexProd
                 render = serverFile.render
             }
 
-            const context = {}
+            const context = {
+                url: null,
+                state: data,
+            }
             const css = {};//new ServerStyleSheet();
             const appHtml = await render(url, context, css, data)
 
@@ -119,8 +120,9 @@ async function createServer(
 
             const html = template
                 .replace(`<!--app-html-->`, appHtml)
-                .replace(`<!--app-state-->`, `<script>window._INITIAL_DATA_ = ${JSON.stringify(data)};</script>`)
-                // .replace(`<!--css-->`, css.getStyleTags())
+                // .replace(`<!--app-auth-->`, `<script>window.__AUTH = ${JSON.stringify(auth)};</script>`)
+                // .replace(`<!--app-store-->`, `<script>window.__INIT__STORE = ${JSON.stringify(store)};</script>`)
+                .replace(`<!--app-state-->`, `<script>window.__INITIAL_DATA = ${JSON.stringify(data)};</script>`)
 
             res.status(200)// .set({ 'Content-Type': 'text/html' })
                 .end(html)
