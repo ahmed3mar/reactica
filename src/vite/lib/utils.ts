@@ -53,10 +53,10 @@ export async function getHtmlContent(payload: Payload) {
     } catch (e) {
         console.error(e)
     }
-    content = content.replace(
-        '</body>',
-        `  <script type="module" src="${entryJsPath}"></script>\n</body>`,
-    )
+    // content = content.replace(
+    //     '</body>',
+    //     `  <script type="module" src="${entryJsPath}"></script>\n</body>`,
+    // )
     const compiled = template(content)
     const context = {
         // @see https://github.com/jantimon/html-webpack-plugin#writing-your-own-templates

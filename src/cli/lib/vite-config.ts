@@ -3,6 +3,10 @@ import { InlineConfig, normalizePath, SSROptions } from "vite";
 import { FullConfig, ReacticaDeploymentTarget } from "../../../index";
 import { reacticaVitePlugin } from "./vite-plugin";
 
+import Pages from 'vite-plugin-pages'
+import react from '@vitejs/plugin-react'
+
+const resolve = (p: string) => path.resolve(process.cwd(), p)
 export interface ConfigFlavorOptions {
     configDeps?: string[];
     onConfigChange?: () => void;
@@ -17,7 +21,7 @@ export async function makeViteConfig(
 ): Promise<InlineConfig & { ssr: SSROptions }> {
     const srcDir = normalizePath(path.resolve("src"));
     const publicDir = normalizePath(path.resolve("public"));
-    const pagesDir = normalizePath(config.pagesDir);
+    const pagesDir = resolve(config.pagesDir);
     const apiDir = normalizePath(config.apiDir);
 
     let viteConfig = config.vite;
@@ -82,6 +86,17 @@ export async function makeViteConfig(
         },
         plugins: [
             ...(viteConfig.plugins || []),
+
+            Pages({
+                // importMode: "async",
+                // dirs: [
+                //   { dir: "src/pages", baseRoute: "" },
+                //   { dir: "src/features/**/pages", baseRoute: "features" },
+                //   { dir: "src/admin/pages", baseRoute: "admin" },
+                // ],
+                pagesDir: pagesDir,
+            }),
+
             await reacticaVitePlugin({
                 srcDir,
                 pagesDir,

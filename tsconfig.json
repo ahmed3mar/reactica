@@ -18,5 +18,5 @@
       }
     },
     "include": ["src"],
-    "exclude": ["node_modules", "lib", "example", "src/bin"]
+    "exclude": ["node_modules", "dist", "example", "src/bin"]
   }

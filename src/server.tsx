@@ -1,4 +1,5 @@
-import React from "react";
+import React, { StrictMode } from 'react'
+import { StaticRouter } from "react-router-dom/server";
 import { renderToString } from "react-dom/server";
 import {
     PageRenderOptions,
@@ -88,13 +89,17 @@ export async function generateResponse(
         options: PageRenderOptions = {},
     ): Promise<ReacticaResponse> {
 
+        // console.log('routes', routes)
+
         const response = {
             status: 200,
             headers: {},
             body: renderToString(
-                <div>
-                    ffff
-                </div>
+                <StrictMode>
+                    <StaticRouter location={request.url}>
+                        
+                    </StaticRouter>
+                </StrictMode>
             ),
         };
 

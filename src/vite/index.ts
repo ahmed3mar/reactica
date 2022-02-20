@@ -1,18 +1,19 @@
 import type { Plugin, ViteDevServer, ResolvedConfig } from 'vite'
 import type { UserOptions } from './lib/options'
 import path from 'path'
-import shell from 'shelljs'
+// import shell from 'shelljs'
 import { last } from 'lodash'
 import { getHtmlContent } from './lib/utils'
 
 import Inspect from 'vite-plugin-inspect'
 import Pages from 'vite-plugin-pages'
+// import Pages from '../pages'
 
 const resolve = (p: string) => path.resolve(process.cwd(), p)
 // must src to corresponding with vite-plugin-mpa#closeBundle hook
 const PREFIX = 'src'
 
-export default function htmlTemplate(userOptions: UserOptions = {}): Plugin {
+function htmlTemplate(userOptions: UserOptions = {}): Plugin {
     const options = {
         pagesDir: 'src/pages',
         pages: {},
@@ -47,6 +48,7 @@ export default function htmlTemplate(userOptions: UserOptions = {}): Plugin {
         configureServer(server: ViteDevServer) {
             return () => {
                 server.middlewares.use(async (req, res, next) => {
+
                     // if not html, next it.
                     if (!req.url?.endsWith('.html') && req.url !== '/') {
                         return next()
@@ -66,7 +68,7 @@ export default function htmlTemplate(userOptions: UserOptions = {}): Plugin {
 
                     const templatePath = path.resolve(__dirname + "/index.html")
 
-                    console.log('templatePath', templatePath)
+                    // console.log('templatePath', templatePath)
 
                     const isMPA = typeof config.build.rollupOptions.input !== 'string' && Object.keys(config.build.rollupOptions.input || {}).length > 0
                     let content = await getHtmlContent({
@@ -96,6 +98,7 @@ export default function htmlTemplate(userOptions: UserOptions = {}): Plugin {
          * @see {@link https://github.com/rollup/plugins/blob/master/packages/virtual/src/index.ts}
          */
         resolveId(id) {
+            console.log('xx --> ', id)
             if (id.endsWith('.html')) {
                 const isMPA = typeof config.build.rollupOptions.input !== 'string' && Object.keys(config.build.rollupOptions.input || {}).length > 0
                 if (!isMPA) {
@@ -106,6 +109,8 @@ export default function htmlTemplate(userOptions: UserOptions = {}): Plugin {
                         return `${PREFIX}/${options.pagesDir.replace('src/', '')}/${pageName}/index.html`
                     }
                 }
+            } else if (id === "/reactica:start.js") {
+                return "reactica:start.js";
             }
             return null
         },
@@ -136,6 +141,12 @@ export default function htmlTemplate(userOptions: UserOptions = {}): Plugin {
                     data: options.data,
                     entry: options.entry || '/src/main',
                 })
+            } else if (id === "reactica:start.js") {
+                return `
+                    console.log('reacticareactica')
+                    // import {startClient} from 'reactica/client'
+                    // startClient()
+                `
             }
             return null
         },
@@ -156,5 +167,16 @@ export default function htmlTemplate(userOptions: UserOptions = {}): Plugin {
         },
     }
 }
+
+export default function framework(config: any) {
+    return [
+        Inspect(),
+        Pages({
+            importMode: "async",
+            pagesDir: resolve('src/pages'),
+        }),
+        htmlTemplate(config)
+    ]
+  }
 
 export type { UserOptions as HtmlTemplateOptions }

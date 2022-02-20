@@ -109,112 +109,122 @@ export async function reacticaVitePlugin(
             //     }
             // },
             //
-            // async resolveId(id, importer, options) {
-            //     const i = id.indexOf("virtual:reacticajs");
-            //     if (i > 0) {
-            //         return this.resolve(id.slice(i), importer, options);
-            //     }
-            //
-            //     if (id === "reacticajs/server") {
-            //         const result = await this.resolve(id, importer, {
-            //             ...options,
-            //             skipSelf: true,
-            //         });
-            //
-            //         if (result) {
-            //             const qPos = result.id.indexOf("?");
-            //             if (qPos >= 0) {
-            //                 result.id = result.id.slice(0, result.id.indexOf("?"));
-            //             }
-            //         }
-            //
-            //         return result;
-            //     } else if (id === "virtual:reacticajs:server") {
-            //         const result = await this.resolve("reactica/server");
-            //         return result;
-            //     } else if (id === "virtual:reacticajs:placeholder-loader") {
-            //         const result = await this.resolve("reactica/placeholder-loader");
-            //
-            //         if (result) {
-            //             const qPos = result.id.indexOf("?");
-            //             if (qPos >= 0) {
-            //                 result.id = result.id.slice(0, result.id.indexOf("?"));
-            //             }
-            //         }
-            //
-            //         return result;
-            //     } else if (id === indexHtmlPath) {
-            //         return normalizedIndexHtmlPath;
-            //     } else if (
-            //         id === "virtual:reacticajs:start-client.js" &&
-            //         importer === normalizedIndexHtmlPath
-            //     ) {
-            //         return "virtual:reacticajs:start-client.js";
-            //     } else if (id === "virtual:reacticajs:client-hooks") {
-            //         const userVersion = await this.resolve(
-            //             path.resolve(srcDir, "client"),
-            //             importer,
-            //             {
-            //                 ...options,
-            //                 skipSelf: true,
-            //             },
-            //         );
-            //         return userVersion || id;
-            //     } else if (id === "virtual:reacticajs:server-hooks") {
-            //         const userVersion = await this.resolve(
-            //             path.resolve(srcDir, "server"),
-            //             importer,
-            //             {
-            //                 ...options,
-            //                 skipSelf: true,
-            //             },
-            //         );
-            //         return userVersion || id;
-            //     } else if (id === "virtual:reacticajs:common-hooks") {
-            //         const userVersion = await this.resolve(
-            //             path.resolve(srcDir, "common"),
-            //             importer,
-            //             {
-            //                 ...options,
-            //                 skipSelf: true,
-            //             },
-            //         );
-            //         return userVersion || id;
-            //     } else if (id === "virtual:reacticajs:placeholder") {
-            //         const userVersion = await this.resolve(
-            //             path.resolve(srcDir, "placeholder"),
-            //             importer,
-            //             {
-            //                 ...options,
-            //                 skipSelf: true,
-            //             },
-            //         );
-            //         return userVersion || id;
-            //     }
-            // },
-            //
-            // async load(id) {
-            //     if (id === normalizedIndexHtmlPath) {
-            //         return htmlTemplate;
-            //     } else if (id === "virtual:reacticajs:start-client.js") {
-            //         return `
-            //         import React from 'react';
-			// 		import {startClient} from "reactica/client";
-			// 		import routes from "virtual:reacticajs:page-routes";
-			// 		startClient(routes);
-			// 	`;
-            //     } else if (
-            //         id === "virtual:reacticajs:client-hooks" ||
-            //         id === "virtual:reacticajs:server-hooks" ||
-            //         id === "virtual:reacticajs:common-hooks"
-            //     ) {
-            //         // This bogus export is for silencing the "Generated an empty chunk" warning
-            //         return "export default null";
-            //     } else if (id === "virtual:reacticajs:placeholder") {
-            //         return `export default () => "Loading..."`;
-            //     }
-            // },
-            //
+            async resolveId(id, importer, options) {
+                console.log('id -> ', id)
+                const i = id.indexOf("virtual:reacticajs");
+                if (i > 0) {
+                    return this.resolve(id.slice(i), importer, options);
+                }
+            
+                if (id === "reacticajs/server") {
+                    const result = await this.resolve(id, importer, {
+                        ...options,
+                        skipSelf: true,
+                    });
+            
+                    if (result) {
+                        const qPos = result.id.indexOf("?");
+                        if (qPos >= 0) {
+                            result.id = result.id.slice(0, result.id.indexOf("?"));
+                        }
+                    }
+            
+                    return result;
+                } else if (id === "virtual:reacticajs:server") {
+                    const result = await this.resolve("reactica/server");
+                    return result;
+                } else if (id === "virtual:reacticajs:placeholder-loader") {
+                    const result = await this.resolve("reactica/placeholder-loader");
+            
+                    if (result) {
+                        const qPos = result.id.indexOf("?");
+                        if (qPos >= 0) {
+                            result.id = result.id.slice(0, result.id.indexOf("?"));
+                        }
+                    }
+            
+                    return result;
+                } /*else if (id === indexHtmlPath) {
+                    return normalizedIndexHtmlPath;
+                } else if (
+                    id === "virtual:reacticajs:start-client.js" &&
+                    importer === normalizedIndexHtmlPath
+                ) {
+                    return "virtual:reacticajs:start-client.js";
+                } */else if (id === "virtual:reacticajs:client-hooks") {
+                    const userVersion = await this.resolve(
+                        path.resolve(srcDir, "client"),
+                        importer,
+                        {
+                            ...options,
+                            skipSelf: true,
+                        },
+                    );
+                    return userVersion || id;
+                } else if (id === "virtual:reacticajs:server-hooks") {
+                    const userVersion = await this.resolve(
+                        path.resolve(srcDir, "server"),
+                        importer,
+                        {
+                            ...options,
+                            skipSelf: true,
+                        },
+                    );
+                    return userVersion || id;
+                } else if (id === "virtual:reacticajs:common-hooks") {
+                    const userVersion = await this.resolve(
+                        path.resolve(srcDir, "common"),
+                        importer,
+                        {
+                            ...options,
+                            skipSelf: true,
+                        },
+                    );
+                    return userVersion || id;
+                } else if (id === "virtual:reacticajs:placeholder") {
+                    const userVersion = await this.resolve(
+                        path.resolve(srcDir, "placeholder"),
+                        importer,
+                        {
+                            ...options,
+                            skipSelf: true,
+                        },
+                    );
+                    return userVersion || id;
+                }
+            },
+            
+            async load(id) {
+                // if (id === normalizedIndexHtmlPath) {
+                //     return htmlTemplate;
+                // } else 
+                if (id === "virtual:reacticajs:pages") {
+                    return `
+                    import React from 'react';
+					import {startClient} from "reactica/client";
+					import routes from "~react-pages";
+					startClient(routes);
+                    export default routes;
+				`;
+                } else if (id === "virtual:reacticajs:start-client.js") {
+                    return `
+                    import React from 'react';
+					import {startClient} from "reactica/client";
+					import routes from "virtual:reacticajs:page-routes";
+					startClient(routes);
+				`;
+                } else if (
+                    id === "virtual:reacticajs:client-hooks" ||
+                    id === "virtual:reacticajs:server-hooks" ||
+                    id === "virtual:reacticajs:common-hooks"
+                ) {
+                    // This bogus export is for silencing the "Generated an empty chunk" warning
+                    return "export default null";
+                } else if (id === "virtual:reacticajs:placeholder") {
+                    return `export default () => "Loading..."`;
+                }
+            },
+            
             // async transform(code, id, options) {
             //     const ssr: boolean | undefined =
             //         options && (options === true || (options as any).ssr);

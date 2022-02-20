@@ -76,6 +76,12 @@ export async function createServers({
                 await vite.ssrLoadModule("reactica");
                 const { handleRequest } = await vite.ssrLoadModule("reactica/server");
 
+                const pageRoutes = (
+                    await vite.ssrLoadModule("virtual:reacticajs:pages")
+                );
+
+                console.log('pageRoutes', pageRoutes)
+
                 const trustForwardedOrigin = config.trustForwardedOrigin
 
                 const proto =
