@@ -1,8 +1,0 @@
-{
-    "name": "reactica/auth",
-    "private": true,
-    "main": "../lib/cjs/auth.js",
-    "jsnext:main": "../lib/esm/auth.js",
-    "module": "../lib/esm/auth.js",
-    "types": "../lib/esm/auth.d.ts"
-}

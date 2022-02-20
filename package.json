@@ -2,18 +2,23 @@
   "name": "reactica",
   "version": "0.0.6",
   "license": "MIT",
-  "main": "./lib/cjs/index.js",
-  "module": "./lib/esm/index.js",
-  "types": "./lib/esm/index.d.ts",
+  "bin": {
+    "reactica": "bin.js"
+  },
   "files": [
     "lib",
     "link",
     "router",
     "auth",
-    "client"
+    "client",
+    "bin.js",
+    "server-entry.js",
+    "*.d.ts"
   ],
   "scripts": {
-    "build": "yarn build:esm && yarn build:cjs",
+    "build": "tsup && node build.mjs && cp src/vite/index.html lib/vite/index.html",
+    "dev": "tsup --watch",
+    "buildx": "yarn build:esm && yarn build:cjs",
     "build:esm": "tsc",
     "build:cjs": "tsc --module commonjs --outDir lib/cjs"
   },
@@ -21,16 +26,52 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
+  "exports": {
+    ".": "./lib/index.mjs",
+    "./vite": "./lib/vite/index.js",
+    "./cli": "./lib/cli/index.js",
+    "./server": "./lib/server.mjs",
+    "./client": "./lib/client.mjs",
+    "./placeholder-loader": "./lib/placeholder-loader.mjs",
+    "./language-redirect-client": "./lib/language-redirect-client.mjs"
+  },
   "devDependencies": {
+    "@types/babel__core": "^7.1.18",
+    "@types/lodash": "^4.14.178",
+    "@types/micromatch": "^4.0.2",
+    "@types/node": "^17.0.18",
+    "@types/node-fetch": "^2.6.1",
     "@types/react": "^17.0.39",
     "@types/react-dom": "^17.0.11",
+    "@types/shelljs": "^0.8.11",
+    "@vitejs/plugin-react": "^1.2.0",
+    "commander": "^9.0.0",
+    "devalue": "^2.0.1",
+    "esbuild-node-externals": "^1.4.1",
     "express": "^4.17.3",
+    "lodash": "^4.17.21",
+    "micromatch": "^4.0.4",
+    "open": "^8.4.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-helmet-async": "^1",
+    "shelljs": "^0.8.5",
+    "sirv": "^2.0.2",
+    "tsup": "^5.11.5",
     "typescript": "^4.5.5",
-    "vite": "^2.8.4"
+    "vite": "^2.8.4",
+    "vite-plugin-inspect": "^0.3.14",
+    "vite-plugin-pages": "^0.20.2",
+    "vite-plugin-virtual": "^0.1.1"
   },
   "dependencies": {
+    "@babel/core": "^7.17.5",
+    "core-js": "^3.21.1",
+    "esbuild": "^0.14.23",
+    "fast-glob": "^3.2.11",
+    "html-entities": "^2.3.2",
+    "knave-react": "^1.1.0",
+    "node-fetch": "^2.6.6",
     "react-router-dom": "^6.2.1"
   }
 }

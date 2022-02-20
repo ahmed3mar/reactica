@@ -1,8 +1,0 @@
-{
-    "name": "reactica/link",
-    "private": true,
-    "main": "../lib/cjs/link.js",
-    "jsnext:main": "../lib/esm/link.js",
-    "module": "../lib/esm/link.js",
-    "types": "../lib/esm/link.d.ts"
-}
