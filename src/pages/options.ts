@@ -8,8 +8,8 @@ function resolvePageDirs(dirs: UserOptions['dirs'], root: string, exclude: strin
   dirs = toArray(dirs)
   return dirs.flatMap((dir) => {
     const option = typeof dir === 'string'
-      ? { dir, baseRoute: '' }
-      : dir
+        ? { dir, baseRoute: '' }
+        : dir
 
     option.dir = slash(resolve(root, option.dir)).replace(`${root}/`, '')
     option.baseRoute = option.baseRoute.replace(/^\//, '').replace(/\/$/, '')
@@ -19,61 +19,46 @@ function resolvePageDirs(dirs: UserOptions['dirs'], root: string, exclude: strin
 }
 
 export function resolveOptions(userOptions: UserOptions, viteRoot?: string): ResolvedOptions {
+  const {
+    dirs = userOptions.pagesDir || ['src/pages'],
+    routeStyle = 'next',
+    routeBlockLang = 'json5',
+    exclude = [],
+    syncIndex = true,
+    caseSensitive = false,
+    resolver = 'vue',
+    extendRoute,
+    onRoutesGenerated,
+    onClientGenerated,
+  } = userOptions
+
+  const root = viteRoot || slash(process.cwd())
+
+  // TODO: default import mode for solid
+  const importMode = userOptions.importMode || (resolver === 'react' ? 'sync' : 'async')
+
+  const extensions = userOptions.extensions || (resolver === 'react' ? ['tsx', 'jsx'] : resolver === 'solid' ? ['tsx', 'jsx', 'ts', 'js'] : ['vue', 'ts', 'js'])
+
+  const extensionsRE = new RegExp(`\\.(${extensions.join('|')})$`)
+
+  const resolvedDirs = resolvePageDirs(dirs, root, exclude)
+
   const resolvedOptions: ResolvedOptions = {
-    extensionsRE: /\.(js|ts|vue|tsx|jsx|mjs|cjs|json|wasm)$/,
-    extensions: ['.js', '.ts', '.vue', '.tsx', '.jsx', '.mjs', '.cjs', '.json', '.wasm'],
-    exclude: [],
-    importMode: 'async',
-    syncIndex: false,
-    routeStyle: "next",
-    caseSensitive: false,
-    routeBlockLang: 'json',
-    resolver: 'react',
-    root: '',
-    dirs: []
+    dirs: resolvedDirs,
+    routeStyle,
+    routeBlockLang,
+    root,
+    extensions,
+    importMode,
+    exclude,
+    syncIndex,
+    caseSensitive,
+    resolver,
+    extensionsRE,
+    extendRoute,
+    onRoutesGenerated,
+    onClientGenerated,
   }
 
-  return resolvedOptions;
-  // const {
-  //   dirs = userOptions.pagesDir || ['src/pages'],
-  //   routeStyle = 'next',
-  //   routeBlockLang = 'json5',
-  //   exclude = [],
-  //   syncIndex = true,
-  //   caseSensitive = false,
-  //   resolver = 'vue',
-  //   extendRoute,
-  //   onRoutesGenerated,
-  //   onClientGenerated,
-  // } = userOptions
-
-  // const root = viteRoot || slash(process.cwd())
-
-  // // TODO: default import mode for solid
-  // const importMode = userOptions.importMode || (resolver === 'react' ? 'sync' : 'async')
-
-  // const extensions = userOptions.extensions || (resolver === 'react' ? ['tsx', 'jsx'] : resolver === 'solid' ? ['tsx', 'jsx', 'ts', 'js'] : ['vue', 'ts', 'js'])
-
-  // const extensionsRE = new RegExp(`\\.(${extensions.join('|')})$`)
-
-  // const resolvedDirs = resolvePageDirs(dirs, root, exclude)
-
-  // const resolvedOptions: ResolvedOptions = {
-  //   dirs: resolvedDirs,
-  //   routeStyle,
-  //   routeBlockLang,
-  //   root,
-  //   extensions,
-  //   importMode,
-  //   exclude,
-  //   syncIndex,
-  //   caseSensitive,
-  //   resolver,
-  //   extensionsRE,
-  //   extendRoute,
-  //   onRoutesGenerated,
-  //   onClientGenerated,
-  // }
-
-  // return resolvedOptions
+  return resolvedOptions
 }

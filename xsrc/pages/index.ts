@@ -13,15 +13,15 @@ function pagesPlugin(userOptions: UserOptions = {}): Plugin {
     async configResolved(config) {
       // auto set resolver for react project
       if (
-          !userOptions.resolver
-          && config.plugins.find(i => i.name.includes('vite:react'))
+        !userOptions.resolver
+        && config.plugins.find(i => i.name.includes('vite:react'))
       )
         userOptions.resolver = 'react'
 
       // TODO: auto set resolver for solid project
       if (
-          !userOptions.resolver
-          && config.plugins.find(i => i.name.includes('solid'))
+        !userOptions.resolver
+        && config.plugins.find(i => i.name.includes('solid'))
       )
         userOptions.resolver = 'solid'
 

@@ -143,7 +143,7 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
                 })
             } else if (id === "reactica:start.js") {
                 return `
-                    import {startClient} from 'reactica/client'
+                    import {startClient} from 'reactica'
                     startClient()
                 `
             }
@@ -171,7 +171,7 @@ export default function framework(config: any) {
     return [
         Inspect(),
         Pages({
-            importMode: "sync",
+            importMode: "async",
             pagesDir: resolve('src/pages'),
         }),
         htmlTemplate(config)

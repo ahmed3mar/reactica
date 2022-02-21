@@ -23,16 +23,16 @@ export class PageContext {
   private _pageRouteMap = new Map<string, PageRoute>()
   private _customBlockMap: Map<string, CustomBlock> = new Map()
 
-  rawOptions: UserOptions
-  root: string
+  rawOptions: UserOptions = {}
+  root: string = ''
   options: ResolvedOptions
 
   constructor(userOptions: UserOptions, viteRoot: string = process.cwd()) {
-    this.rawOptions = userOptions
-    this.root = slash(viteRoot)
-    debug.env('root', this.root)
+    // this.rawOptions = userOptions
+    // this.root = slash(viteRoot)
+    // debug.env('root', this.root)
     this.options = resolveOptions(userOptions, this.root)
-    debug.options(this.options)
+    // debug.options(this.options)
   }
 
   setupViteServer(server: ViteDevServer) {
@@ -45,32 +45,32 @@ export class PageContext {
 
   setupWatcher(watcher: FSWatcher) {
     watcher
-        .on('unlink', (path) => {
-          path = slash(path)
-          if (!isTarget(path, this.options))
-            return
-          this.removePage(path)
-          this.onUpdate()
-        })
+      .on('unlink', (path) => {
+        path = slash(path)
+        if (!isTarget(path, this.options))
+          return
+        this.removePage(path)
+        this.onUpdate()
+      })
     watcher
-        .on('add', async(path) => {
-          path = slash(path)
-          if (!isTarget(path, this.options))
-            return
-          const page = this.options.dirs.find(i => path.startsWith(slash(resolve(this.root, i.dir))))!
-          await this.addPage(path, page)
-          this.onUpdate()
-        })
+      .on('add', async(path) => {
+        path = slash(path)
+        if (!isTarget(path, this.options))
+          return
+        const page = this.options.dirs.find(i => path.startsWith(slash(resolve(this.root, i.dir))))!
+        await this.addPage(path, page)
+        this.onUpdate()
+      })
 
     watcher
-        .on('change', async(path) => {
-          path = slash(path)
-          if (!isTarget(path, this.options))
-            return
-          const page = this._pageRouteMap.get(path)
-          if (page)
-            this.checkCustomBlockChange(path)
-        })
+      .on('change', async(path) => {
+        path = slash(path)
+        if (!isTarget(path, this.options))
+          return
+        const page = this._pageRouteMap.get(path)
+        if (page)
+          this.checkCustomBlockChange(path)
+      })
   }
 
   async addPage(path: string | string[], pageDir: PageOptions) {

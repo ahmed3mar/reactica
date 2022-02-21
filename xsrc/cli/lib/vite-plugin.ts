@@ -115,37 +115,34 @@ export async function reacticaVitePlugin(
                 if (i > 0) {
                     return this.resolve(id.slice(i), importer, options);
                 }
-
+            
                 if (id === "reacticajs/server") {
                     const result = await this.resolve(id, importer, {
                         ...options,
                         skipSelf: true,
                     });
-
+            
                     if (result) {
                         const qPos = result.id.indexOf("?");
                         if (qPos >= 0) {
                             result.id = result.id.slice(0, result.id.indexOf("?"));
                         }
                     }
-
+            
                     return result;
                 } else if (id === "virtual:reacticajs:server") {
                     const result = await this.resolve("reactica/server");
                     return result;
-                } else if (id === "virtual:reacticajs:servers") {
-                    // const result = await this.resolve("reactica/server");
-                    return "virtual:reacticajs:servers";
                 } else if (id === "virtual:reacticajs:placeholder-loader") {
                     const result = await this.resolve("reactica/placeholder-loader");
-
+            
                     if (result) {
                         const qPos = result.id.indexOf("?");
                         if (qPos >= 0) {
                             result.id = result.id.slice(0, result.id.indexOf("?"));
                         }
                     }
-
+            
                     return result;
                 } /*else if (id === indexHtmlPath) {
                     return normalizedIndexHtmlPath;
@@ -196,24 +193,12 @@ export async function reacticaVitePlugin(
                     return userVersion || id;
                 }
             },
-
+            
             async load(id) {
-                console.log(id);
                 // if (id === normalizedIndexHtmlPath) {
                 //     return htmlTemplate;
-                // } else
-                if (id === "virtual:reacticajs:servers") {
-                    return `
-                    import React from 'react';
-                    const App = () => {
-                        return (
-                            <div>HI</div>
-                        )
-                    }
-
-                    export default App;
-				`;
-                } else if (id === "virtual:reacticajs:pages") {
+                // } else 
+                if (id === "virtual:reacticajs:pages") {
                     return `
                     import React from 'react';
 					import {startClient} from "reactica/client";
@@ -239,7 +224,7 @@ export async function reacticaVitePlugin(
                     return `export default () => "Loading..."`;
                 }
             },
-
+            
             // async transform(code, id, options) {
             //     const ssr: boolean | undefined =
             //         options && (options === true || (options as any).ssr);

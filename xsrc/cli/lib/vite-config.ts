@@ -3,7 +3,7 @@ import { InlineConfig, normalizePath, SSROptions } from "vite";
 import { FullConfig, ReacticaDeploymentTarget } from "../../../index";
 import { reacticaVitePlugin } from "./vite-plugin";
 
-import Pages from '../../pages'
+import Pages from 'vite-plugin-pages'
 import react from '@vitejs/plugin-react'
 
 const resolve = (p: string) => path.resolve(process.cwd(), p)
@@ -88,10 +88,12 @@ export async function makeViteConfig(
             ...(viteConfig.plugins || []),
 
             Pages({
-                importMode: "sync",
-                resolver: "react",
-                routeStyle: "next",
-                extensions: ["tsx", "jsx"],
+                // importMode: "async",
+                // dirs: [
+                //   { dir: "src/pages", baseRoute: "" },
+                //   { dir: "src/features/**/pages", baseRoute: "features" },
+                //   { dir: "src/admin/pages", baseRoute: "admin" },
+                // ],
                 pagesDir: pagesDir,
             }),
 

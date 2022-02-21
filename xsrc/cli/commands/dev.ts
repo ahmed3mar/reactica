@@ -1,8 +1,9 @@
 import chalk from "chalk";
 import commander from "commander";
 import open from "open";
-import {createServers} from "../lib/servers";
-import {loadConfig} from "../lib/config";
+import { loadConfig } from "../lib/config";
+// import { installNodeFetch } from "../runtime/install-node-fetch";
+import { createServers } from "../lib/servers";
 
 const { Command } = commander;
 
@@ -32,8 +33,6 @@ async function startServer(opts: { port: string; host: string; open?: true }) {
     }
 
     const host = opts.host;
-
-    console.log('host', host)
 
     let { config, deps } = await loadConfig({
         command: "dev",
