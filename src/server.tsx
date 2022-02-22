@@ -19,7 +19,7 @@ function App() {
                 const Comp = route.element;
                 return (
                     <Route key={route.path || '/'} path={'/' + (route.path || '')} element={
-                        <Suspense fallback={<div>loading</div>}>
+                        <Suspense fallback={null}>
                             <Comp />
                         </Suspense>
                     } />
@@ -37,7 +37,7 @@ export const Application = ({context}: any) => {
     )
 }
 
-export const server = (context) => {
+export const server = (context, pages) => {
     return () => {
         return (
             <Application context={context} />

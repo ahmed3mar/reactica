@@ -34,12 +34,16 @@ function replaceFunction(_: any, value: any) {
 export function stringifyRoutes(
   preparedRoutes: any[],
   options: ResolvedOptions,
+  forceMode: boolean = false
 ) {
   const imports: string[] = []
 
   function componentReplacer(str: string, replaceStr: string, path: string) {
     const mode = resolveImportMode(path, options)
-    if (mode === 'sync') {
+    if (forceMode) {
+      console.log(`[vite] force mode: ${forceMode}`)
+      return str.replace(replaceStr, `() => import('${path}')`)
+    } else if (mode === 'sync') {
       const importName = pathToName(path)
       const importStr = `import ${importName} from "${path}"`
 
@@ -85,11 +89,22 @@ export function stringifyRoutes(
 
 export function generateClientCode(routes: any[], options: ResolvedOptions) {
   const { imports, stringRoutes } = stringifyRoutes(routes, options)
+  const other = stringifyRoutes(routes, options, true)
 
   if (options.resolver === 'react')
     imports.push('import React from \"react\"')
   if (options.resolver === 'solid')
     imports.push('import * as Solid from \"solid-js\"')
-
-  return `${imports.join(';\n')};\n\nconst routes = ${stringRoutes};\n\nexport default routes;`
+  return `
+  const isBrowser = typeof window !== 'undefined';
+  ${imports.join(';\n')};\n\n
+  let routes = [];
+  if (import.meta.env.SSR) {
+    routes = ${other.stringRoutes};
+  } else {
+    routes = ${stringRoutes};
+  }
+  \n\n
+  export default routes;
+  `
 }

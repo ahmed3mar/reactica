@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { hydrate, render } from 'react-dom'
 
 import {
   useRoutes,
+  Routes,
+  Route,
   BrowserRouter as Router,
 } from 'react-router-dom'
 
@@ -10,7 +12,22 @@ import {
 import routes from '~react-pages'
 
 function App() {
-  return useRoutes(routes)
+//   return useRoutes(routes)
+  
+  return (
+    <Routes>
+        {routes.map((route: any) => {
+            const Comp = route.element;
+            return (
+                <Route key={route.path || '/'} path={'/' + (route.path || '')} element={
+                    <Suspense fallback={<div>loading</div>}>
+                        <Comp />
+                    </Suspense>
+                } />
+            )
+        })}
+    </Routes>
+)
 }
 
 export async function startClient() {
