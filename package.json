@@ -16,7 +16,7 @@
     "*.d.ts"
   ],
   "scripts": {
-    "build": "tsup && node build.mjs && cp src/vite/index.html dist/vite/index.html",
+    "build": "tsup && node build.mjs && cp src/vite/index.html dist/vite/plugin/index.html",
     "buildx": "yarn build:esm && yarn build:cjs",
     "tsup": "tsup && cp src/vite/index.html dist/vite/index.html",
     "dev": "tsup --watch",
@@ -24,12 +24,17 @@
     "build:cjs": "tsc --module commonjs --outDir dist/cjs"
   },
   "peerDependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react": "^18.0.0-rc.0-next-fe905f152-20220107",
+    "react-dom": "^18.0.0-rc.0-next-fe905f152-20220107"
   },
   "exports": {
-    ".": "./dist/index.mjs",
-    "./vite": "./dist/vite/index.js",
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./node": "./dist/vite/index.js",
+    "./vite": "./dist/vite/plugin/index.js",
     "./cli": "./dist/cli/index.js",
     "./pages": {
       "require": "./dist/index.js",
@@ -46,13 +51,14 @@
     "./language-redirect-client": "./dist/language-redirect-client.mjs"
   },
   "dependencies": {
+    "@loadable/server": "^5.15.2",
     "debug": "^4.3.3",
     "deep-equal": "^2.0.5",
     "fast-glob": "^3.2.11",
     "json5": "^2.2.0",
     "local-pkg": "^0.4.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^18.0.0-rc.0-next-fe905f152-20220107",
+    "react-dom": "^18.0.0-rc.0-next-fe905f152-20220107",
     "react-helmet-async": "^1.2.3",
     "react-router": "^6.2.1",
     "react-router-dom": "^6.2.1",
@@ -60,6 +66,7 @@
   },
   "devDependencies": {
     "@antfu/utils": "^0.5.0",
+    "@brillout/libassert": "^0.5.4",
     "@hannoeru/eslint-config": "^0.6.0",
     "@types/debug": "^4.1.7",
     "@types/deep-equal": "^1.0.1",
@@ -82,6 +89,7 @@
     "node-fetch": "^2.6.6",
     "open": "^8.4.0",
     "playwright": "^1.19.1",
+    "react-ssr-prepass": "^1.5.0",
     "solid-app-router": "^0.3.0",
     "tsup": "^5.11.13",
     "typescript": "^4.5.5",

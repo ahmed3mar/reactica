@@ -4,6 +4,7 @@ export default defineConfig({
     entry: [
         // "src/pages/index.ts",
         "src/vite/index.ts",
+        "src/vite/plugin/index.ts",
         "src/index.tsx",
         "src/server.tsx",
         "src/client.tsx",
@@ -11,6 +12,8 @@ export default defineConfig({
     ],
     external: [
         '~react-pages',
+        'react-router-dom',
+        "virtual:reacticajs:server",
         "virtual:generated-pages",
         "virtual:reacticajs:servers",
         "virtual:reacticajs:server-hooks",
