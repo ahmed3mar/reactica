@@ -9,10 +9,52 @@ import {
 } from 'react-router-dom'
 
 // @ts-ignore
-import routes from '~react-pages'
+import loadPages from 'virtaul:reacticajs:pages-sync';
+import { RouterProvider } from './router';
+
+// export const RoutesX = () => {
+
+//   const renderRoutes = (routes: any) => {
+//       // @ts-ignore
+//       return routes.map(({ children, ...route }, index) => (
+//           children ? (
+//               <Route key={index} {...route}>
+//                   {renderRoutes(children)}
+//               </Route>
+//           ) : (
+//               <Route key={index} {...route} />
+//           )
+//       ))
+//   }
+
+//   return (
+//       <App>
+//           <RoutesRouter>
+//               {renderRoutes(routes)}
+//           </RoutesRouter>
+//       </App>
+//   )
+// }
+
+// @ts-ignore
+const data = window?.__INITIAL_DATA;
+
+const { routes, Wrapper } = loadPages({ state: data });
 
 function App() {
-//   return useRoutes(routes)
+
+  console.log('routes', routes)
+
+  // @ts-ignore
+  const pages = useRoutes(routes);
+
+  return (
+    <RouterProvider routes={pages}>
+      <Wrapper>
+        {pages}
+      </Wrapper>
+    </RouterProvider>
+  );
   
   return (
     <Routes>
@@ -31,11 +73,6 @@ function App() {
 }
 
 export async function startClient() {
-
-  console.log(' xxx x x  ')
-
-  console.log('routes', routes)
-
   const app = document.getElementById('page-view') as Element
 
   const application = (

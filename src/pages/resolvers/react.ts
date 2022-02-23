@@ -45,7 +45,7 @@ function prepareRoutes(
   return routes
 }
 
-export async function resolveReactRoutes(ctx: PageContext) {
+export async function resolveReactRoutes(ctx: PageContext, ssr: boolean = false) {
   const { routeStyle, caseSensitive } = ctx.options
   const nuxtStyle = routeStyle === 'nuxt'
 
@@ -107,7 +107,7 @@ export async function resolveReactRoutes(ctx: PageContext) {
 
   finalRoutes = (await ctx.options.onRoutesGenerated?.(finalRoutes)) || finalRoutes
 
-  let client = generateClientCode(finalRoutes, ctx.options)
+  let client = generateClientCode(finalRoutes, ctx.options, ssr)
   client = (await ctx.options.onClientGenerated?.(client)) || client
   return client
 }

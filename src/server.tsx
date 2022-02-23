@@ -7,11 +7,36 @@ import {
     Routes,
 } from 'react-router-dom'
 
-import routes from '~react-pages'
+// @ts-ignore
+import loadPages from 'virtaul:reacticajs:pages-sync'
 import {StaticRouter} from "react-router-dom/server";
+import { RouterProvider } from './router';
 
-function App() {
-    // return useRoutes(routes)
+function App({ context }) {
+    const { routes, Wrapper } = loadPages(context)
+
+    const pages = useRoutes(routes);
+
+    return (
+        <RouterProvider routes={pages}>
+            <Wrapper>
+                {pages}
+            </Wrapper>
+        </RouterProvider>
+      );
+      
+    return (
+        <Wrapper>
+            <Routes>
+                {routes.map(route => {
+                    return (
+                        <Route key={route.path} path={route.path} element={route.element} />
+                    )
+                })}
+            </Routes>
+        </Wrapper>
+      );
+    return useRoutes(routes)
 
     return (
         <Routes>
@@ -32,7 +57,7 @@ function App() {
 export const Application = ({context}: any) => {
     return (
         <StaticRouter location={context.url}>
-            <App />
+            <App context={context} />
         </StaticRouter>
     )
 }

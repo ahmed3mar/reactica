@@ -136,6 +136,15 @@ export class PageContext {
       return await resolveSolidRoutes(this)
   }
 
+  async resolveRoutesSSR() {
+    if (this.options.resolver === 'vue')
+      return await resolveVueRoutes(this)
+    if (this.options.resolver === 'react')
+      return await resolveReactRoutes(this, true)
+    if (this.options.resolver === 'solid')
+      return await resolveSolidRoutes(this)
+  }
+
   async searchGlob() {
     const pageDirFiles = this.options.dirs.map((page) => {
       const pagesDirPath = slash(resolve(this.options.root, page.dir))

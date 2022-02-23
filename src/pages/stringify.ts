@@ -40,10 +40,7 @@ export function stringifyRoutes(
 
   function componentReplacer(str: string, replaceStr: string, path: string) {
     const mode = resolveImportMode(path, options)
-    if (forceMode) {
-      console.log(`[vite] force mode: ${forceMode}`)
-      return str.replace(replaceStr, `() => import('${path}')`)
-    } else if (mode === 'sync') {
+    if (mode === 'sync' || forceMode) {
       const importName = pathToName(path)
       const importStr = `import ${importName} from "${path}"`
 
@@ -67,6 +64,7 @@ export function stringifyRoutes(
   }
 
   function functionReplacer(str: string, replaceStr: string, content: string) {
+    console.log('content', content)
     if (content.startsWith('function'))
       return str.replace(replaceStr, content)
 
@@ -75,6 +73,11 @@ export function stringifyRoutes(
 
     return str
   }
+
+  console.log(
+    JSON
+    .stringify(preparedRoutes, replaceFunction)
+  )
 
   const stringRoutes = JSON
     .stringify(preparedRoutes, replaceFunction)
@@ -87,14 +90,29 @@ export function stringifyRoutes(
   }
 }
 
-export function generateClientCode(routes: any[], options: ResolvedOptions) {
-  const { imports, stringRoutes } = stringifyRoutes(routes, options)
-  const other = stringifyRoutes(routes, options, true)
-
+export function generateClientCode(routes: any[], options: ResolvedOptions, ssr: boolean = false) {
+  const { imports, stringRoutes } = stringifyRoutes(routes, options, ssr)
   if (options.resolver === 'react')
     imports.push('import React from \"react\"')
   if (options.resolver === 'solid')
     imports.push('import * as Solid from \"solid-js\"')
+
+  if (ssr) {
+    return `
+      ${imports.join(';\n')};\n\n
+      import { parseRoutes } from 'reactica';
+      const routes = ${stringRoutes};\n\n
+      export default parseRoutes(routes);
+    `
+  } else {
+    return `
+      ${imports.join(';\n')};\n\n
+      const routes = ${stringRoutes};\n\n
+      import { parseRoutes } from 'reactica';
+      export default parseRoutes(routes);
+    `
+  }
+
   return `
   const isBrowser = typeof window !== 'undefined';
   ${imports.join(';\n')};\n\n

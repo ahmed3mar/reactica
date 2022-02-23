@@ -24,8 +24,8 @@
     "build:cjs": "tsc --module commonjs --outDir dist/cjs"
   },
   "peerDependencies": {
-    "react": "^18.0.0-rc.0-next-fe905f152-20220107",
-    "react-dom": "^18.0.0-rc.0-next-fe905f152-20220107"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "exports": {
     ".": {
@@ -41,11 +41,26 @@
       "import": "./dist/index.mjs",
       "types": "./dist/index.d.ts"
     },
+    "./routes": {
+      "require": "./dist/routes.js",
+      "import": "./dist/routes.mjs",
+      "types": "./dist/routes.d.ts"
+    },
     "./server": "./dist/server.mjs",
     "./client": {
       "require": "./dist/client.js",
       "import": "./dist/client.mjs",
       "types": "./dist/client.d.ts"
+    },
+    "./link": {
+      "require": "./dist/link.js",
+      "import": "./dist/link.mjs",
+      "types": "./dist/link.d.ts"
+    },
+    "./router": {
+      "require": "./dist/router.js",
+      "import": "./dist/router.mjs",
+      "types": "./dist/router.d.ts"
     },
     "./placeholder-loader": "./dist/placeholder-loader.mjs",
     "./language-redirect-client": "./dist/language-redirect-client.mjs"
@@ -57,8 +72,8 @@
     "fast-glob": "^3.2.11",
     "json5": "^2.2.0",
     "local-pkg": "^0.4.1",
-    "react": "^18.0.0-rc.0-next-fe905f152-20220107",
-    "react-dom": "^18.0.0-rc.0-next-fe905f152-20220107",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-helmet-async": "^1.2.3",
     "react-router": "^6.2.1",
     "react-router-dom": "^6.2.1",

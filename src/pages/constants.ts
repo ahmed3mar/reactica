@@ -6,4 +6,5 @@ export const MODULE_IDS = [
   'pages-generated',
   'virtual:generated-pages',
   'virtual:generated-pages-react',
+  'virtual:reacticajs:pages',
 ]

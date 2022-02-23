@@ -114,6 +114,11 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
                 console.log('===================>', path.resolve(__dirname, '../../server.js'))
                 return path.resolve(__dirname, '../../../src/server.tsx');
             }
+
+            else if (["virtaul:reacticajs:pages-sync", "virtaul:reacticajs:pages-async"].includes(id)) {
+                return id;
+            }
+
             return null
         },
         /** for dev */
@@ -174,7 +179,29 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
                 //
                 //     export default App;
                 // `
+            } else if (id === "virtaul:reacticajs:pages-sync") {
+                return `
+                    const PRESERVED = import.meta.globEager('/src/pages/(_app|_document|_wrapper|404).(ts|tsx|js|jsx)')
+                    const ROUTES = import.meta.globEager('/src/pages/**/[a-z[]*.(ts|tsx|js|jsx)')
+                    import { parseRoutes } from 'reactica/routes';
+
+                    export default (context) => parseRoutes(context, PRESERVED, ROUTES, false);
+                `
+            } else if (id === "virtaul:reacticajs:pages-async") {
+                return `
+                    const PRESERVED = import.meta.globEager('/src/pages/(_app|_document|_wrapper|404).(ts|tsx|js|jsx)')
+                    const ROUTES = import.meta.glob('/src/pages/**/[a-z[]*.(ts|tsx|js|jsx)')
+
+                    import { parseRoutes } from 'reactica/routes';
+
+                    const { routes, App, Wrapper, Document } = parseRoutes(PRESERVED, ROUTES, true);
+                    export {
+                        App, Wrapper, Document
+                    };
+                    export default routes;
+                `
             }
+
             return null
         },
         /** for build */
@@ -196,13 +223,42 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
 }
 
 export default function framework(config: any) {
+    let c: any;
+    let css: any = {};
     return [
         Inspect(),
-        Pages({
-            importMode: "async",
-            pagesDir: resolve('src/pages'),
-        }),
-        htmlTemplate(config)
+        // Pages({
+        //     // importMode: "async",
+        //     pagesDir: resolve('src/pages'),
+        // }),
+        htmlTemplate(config),
+
+        {
+            enforce: 'post',
+            apply: 'serve',
+            configResolved(resolvedConfig: any) {
+                // store the resolved config
+                c = resolvedConfig
+            },
+            transform (code: any, id: any, ssr: any) {
+                if (c.command === 'serve') {
+                    if (ssr && id.endsWith('.css')) {
+                        
+                        if (!css[id]) {
+                            css[id] = code.trim().slice(16, -1).replace(/\\n/gi, "");
+
+                            return `global.css = ${JSON.stringify(Object.values(css))}`;
+                        }
+                        // console.log('sssss')
+                        // return `global.css = (global.css || []).push("${code.trim().slice(16, -1)}")`;
+                    }
+                  } else {
+                    // build: plugin invoked by Rollup
+                  }
+
+                
+            },
+        }
     ]
   }
 

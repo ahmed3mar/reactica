@@ -32,9 +32,13 @@ function pagesPlugin(userOptions: UserOptions = {}): Plugin {
       ctx.setupViteServer(server)
     },
     resolveId(id) {
+      if (id === "virtual:reacticajs:pages") return "virtual:reacticajs:pages";
       return MODULE_IDS.includes(id) ? MODULE_ID_VIRTUAL : null
     },
     async load(id) {
+      if (id === "virtual:reacticajs:pages")
+        return ctx.resolveRoutesSSR()
+
       if (id !== MODULE_ID_VIRTUAL)
         return
 
