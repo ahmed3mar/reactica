@@ -1,8 +1,6 @@
 import React, { Fragment } from "react"
 import { BrowserRouter, RouteProps, Route, Routes as RoutesRouter } from 'react-router-dom'
 
-// @ts-ignore
-import routes from 'virtaul:reacticajs:pages-sync';
 import Guard from "./Guard";
 
 const Application = ({Component, pageProps }: any) => {
@@ -176,17 +174,4 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, lazyLoad:
     //     item.element = React.createElement(item.element.default);
     //     return item;
     // });
-}
-
-export const routeByName = (name: string, args: any): string => {
-    // @ts-ignore
-    const route = routes.find((route) => route.name === name)
-    // @ts-ignore
-    if (route && route?.name) {
-        return (route.path || '').replace(/:.+/g, (match: any) => {
-            const key = match.substring(1)
-            return args[key]
-        })
-    }
-    return route?.path || '';
 }

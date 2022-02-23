@@ -39,6 +39,12 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
             // }
         }
 
+    } else if (!isBrowser && context) {
+        if (state.page !== path) {
+            newState = {}
+        } else {
+            newState = state.props;
+        }
     }
 
     // const params = useParams();
@@ -49,6 +55,43 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
     });
 
     console.log('router.pathname', router.pathname, state)
+
+    const getInitialPropsComponentProps = {
+        err: undefined,
+        req: '',
+        res: '',
+
+        pathname: '/',
+        query: {},
+        asPath: '/',
+        locale: undefined,
+        locales: undefined,
+        defaultLocale: undefined,
+        // AppTree: [Function: AppTree],
+        // defaultGetInitialProps: [AsyncFunction: defaultGetInitialProps]
+    }
+
+    const getInitialPropsAppProps = {
+        // AppTree: [Function: AppTree],
+        Component,
+        // Component: [Function: Home] { getInitialProps: [AsyncFunction (anonymous)] },
+        router:  {
+            route: '/',
+            pathname: '/',
+            query: {},
+            asPath: '/',
+            isFallback: false,
+            basePath: '',
+            locale: undefined,
+            locales: undefined,
+            defaultLocale: undefined,
+            isReady: true,
+            domainLocales: undefined,
+            isPreview: false,
+            isLocaleDomain: false
+        },
+        cts: getInitialPropsComponentProps
+    }
 
     useEffect(() => {
         if (isBrowser && context) {
@@ -62,13 +105,13 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
                 newState = {}
 
                 const getInitialProps = App.getInitialProps || (async () => {
-                    if (Component.getInitialProps) return await Component.getInitialProps();
+                    if (Component.getInitialProps) return await Component.getInitialProps(getInitialPropsComponentProps);
                 })
 
                 if (getInitialProps) {
                     setLoading(true);
                     if (getInitialProps instanceof AsyncFunction === true) {
-                        getInitialProps(Component)
+                        getInitialProps(getInitialPropsAppProps)
                             .then((d: any) => {
                                 setData({
                                     [router.pathname]: d,
@@ -79,7 +122,7 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
                                 setLoading(false);
                             })
                     } else {
-                        const res = getInitialProps(Component);
+                        const res = getInitialProps(getInitialPropsAppProps);
                         setLoading(false);
                         setData({
                             [router.pathname]: res,

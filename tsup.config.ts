@@ -16,6 +16,7 @@ export default defineConfig({
     external: [
         '$output/reactica-manifest.json',
         '~react-pages',
+        'react-router',
         'react-router-dom',
         'virtaul:reacticajs:pages-parsed',
         'virtaul:reacticajs:pages-sync',

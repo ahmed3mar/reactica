@@ -9,7 +9,7 @@ import {
 } from 'react-router-dom'
 
 // @ts-ignore
-import loadPages from 'virtaul:reacticajs:pages-sync';
+// import loadPages from 'virtaul:reacticajs:pages-sync';
 import { RouterProvider } from './router';
 
 // export const RoutesX = () => {
@@ -39,9 +39,10 @@ import { RouterProvider } from './router';
 // @ts-ignore
 const data = window?.__INITIAL_DATA;
 
-const { routes, Wrapper } = loadPages({ state: data });
 
-function App() {
+function App({ loadPages }: any) {
+  
+  const { routes, Wrapper } = loadPages({ state: data });
 
   console.log('routes', routes)
 
@@ -72,12 +73,12 @@ function App() {
 )
 }
 
-export async function startClient() {
-  const app = document.getElementById('page-view') as Element
+export async function startClient(loadPages: any) {
+  const app = document.getElementById('reactica-app') as Element
 
   const application = (
     <Router>
-      <App />
+      <App loadPages={loadPages} />
     </Router>
   );
 

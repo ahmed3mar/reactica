@@ -6,7 +6,13 @@ const renderPage = async (viteDevServer: any, pageContextInit: any) => {
 
     const { render } = await viteDevServer.ssrLoadModule("pages/_document");
     const {server} = await viteDevServer.ssrLoadModule("virtual:reacticajs:server");
+
+
+    console.log('adfadsfsdfsdsdf')
+
     const loadPages = (await viteDevServer.ssrLoadModule("virtaul:reacticajs:pages-sync")).default;
+
+    console.log('loadPages', loadPages)
 
     const {routes: pages} = loadPages(pageContextInit);
 
@@ -41,16 +47,64 @@ const renderPage = async (viteDevServer: any, pageContextInit: any) => {
 
 
     if (page) {
+
+
+        const getInitialPropsComponentProps = {
+            err: undefined,
+            req: '',
+            res: '',
+    
+            pathname: '/',
+            query: {},
+            asPath: '/',
+            locale: undefined,
+            locales: undefined,
+            defaultLocale: undefined,
+            // AppTree: [Function: AppTree],
+            // defaultGetInitialProps: [AsyncFunction: defaultGetInitialProps]
+        }
+    
+        const getInitialPropsAppProps = {
+            // AppTree: [Function: AppTree],
+            Component: page.component,
+            // Component: [Function: Home] { getInitialProps: [AsyncFunction (anonymous)] },
+            router:  {
+                route: '/',
+                pathname: '/',
+                query: {},
+                asPath: '/',
+                isFallback: false,
+                basePath: '',
+                locale: undefined,
+                locales: undefined,
+                defaultLocale: undefined,
+                isReady: true,
+                domainLocales: undefined,
+                isPreview: false,
+                isLocaleDomain: false
+            },
+            cts: getInitialPropsComponentProps
+        }
+
+
         if (page.element.props.app.getInitialProps) {
-            const { pageProps = {}, ...rest } = await page.element.props.app.getInitialProps(page.component)
-            contextData['props'] = pageProps;
-            // @ts-ignore
-            contextData['mainProps'] = rest;
+            const res = await page.element.props.app.getInitialProps(getInitialPropsAppProps)
+            if (res && typeof res === "object" && !Array.isArray(res)) {
+                const { pageProps = {}, ...rest } = res;
+                contextData['props'] = pageProps;
+                // @ts-ignore
+                contextData['mainProps'] = rest;
+            } else {
+                console.error('returned an empty object from `getInitialProps`. This de-optimizes and prevents automatic static optimization. https://nextjs.org/docs/messages/empty-object-getInitialProp');
+            }
+            
             // data.index = routes.findIndex(route => matchPath(urlNoLanguage, route))
         } else if (page?.component?.getInitialProps) {
-            contextData['props'] = await page.component.getInitialProps()
+            contextData['props'] = await page.component.getInitialProps(getInitialPropsComponentProps)
         }
     }
+
+    pageContextInit['state'] = contextData;
 
     const data = await render({
         Main: await server(pageContextInit),

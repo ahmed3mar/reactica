@@ -151,7 +151,8 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
             } else if (id === "reactica:start.js") {
                 return `
                     import {startClient} from 'reactica/client'
-                    startClient()
+                    import loadPages from 'virtaul:reacticajs:pages-sync';
+                    startClient(loadPages)
                 `
             } else if (id === "virtual:reacticajs:server") {
                 // return `
@@ -233,32 +234,32 @@ export default function framework(config: any) {
         // }),
         htmlTemplate(config),
 
-        {
-            enforce: 'post',
-            apply: 'serve',
-            configResolved(resolvedConfig: any) {
-                // store the resolved config
-                c = resolvedConfig
-            },
-            transform (code: any, id: any, ssr: any) {
-                if (c.command === 'serve') {
-                    if (ssr && id.endsWith('.css')) {
+        // {
+        //     enforce: 'post',
+        //     apply: 'serve',
+        //     configResolved(resolvedConfig: any) {
+        //         // store the resolved config
+        //         c = resolvedConfig
+        //     },
+        //     transform (code: any, id: any, ssr: any) {
+        //         if (c.command === 'serve') {
+        //             if (ssr && id.endsWith('.css')) {
                         
-                        if (!css[id]) {
-                            css[id] = code.trim().slice(16, -1).replace(/\\n/gi, "");
+        //                 if (!css[id]) {
+        //                     css[id] = code.trim().slice(16, -1).replace(/\\n/gi, "");
 
-                            return `global.css = ${JSON.stringify(Object.values(css))}`;
-                        }
-                        // console.log('sssss')
-                        // return `global.css = (global.css || []).push("${code.trim().slice(16, -1)}")`;
-                    }
-                  } else {
-                    // build: plugin invoked by Rollup
-                  }
+        //                     return `global.css = ${JSON.stringify(Object.values(css))}`;
+        //                 }
+        //                 // console.log('sssss')
+        //                 // return `global.css = (global.css || []).push("${code.trim().slice(16, -1)}")`;
+        //             }
+        //           } else {
+        //             // build: plugin invoked by Rollup
+        //           }
 
                 
-            },
-        }
+        //     },
+        // }
     ]
   }
 

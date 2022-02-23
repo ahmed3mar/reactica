@@ -62,7 +62,7 @@ export const Application = ({context}: any) => {
     )
 }
 
-export const server = (context, pages) => {
+export const server = (context) => {
     return () => {
         return (
             <Application context={context} />
