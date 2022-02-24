@@ -7,12 +7,7 @@ const renderPage = async (viteDevServer: any, pageContextInit: any) => {
     const { render } = await viteDevServer.ssrLoadModule("pages/_document");
     const {server} = await viteDevServer.ssrLoadModule("virtual:reacticajs:server");
 
-
-    console.log('adfadsfsdfsdsdf')
-
-    const loadPages = (await viteDevServer.ssrLoadModule("virtaul:reacticajs:pages-sync")).default;
-
-    console.log('loadPages', loadPages)
+    const loadPages = (await viteDevServer.ssrLoadModule("virtual:reacticajs:pages-sync")).default;
 
     const {routes: pages} = loadPages(pageContextInit);
 
@@ -44,6 +39,9 @@ const renderPage = async (viteDevServer: any, pageContextInit: any) => {
         "appGip":true,
         "scriptLoader":[]
     };
+
+    const cookies = pageContextInit.req.cookies;
+    pageContextInit['cookies'] = cookies;
 
 
     if (page) {

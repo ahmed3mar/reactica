@@ -8,11 +8,11 @@ async function readHtmlTemplate(templatePath: string) {
 }
 
 interface Payload {
-    pagesDir: string
-    pageName: string
+    // pagesDir: string
+    // pageName: string
     templatePath: string
-    pageEntry: string
-    pageTitle: string
+    // pageEntry: string
+    // pageTitle: string
     isMPA: boolean
     data: UserOptions['data']
     entry: UserOptions['entry']
@@ -25,29 +25,29 @@ interface Payload {
 /** patch original content with vite entry esmodule script */
 export async function getHtmlContent(payload: Payload) {
     const {
-        pagesDir,
+        // pagesDir,
         templatePath,
-        pageName,
-        pageTitle,
-        pageEntry,
+        // pageName,
+        // pageTitle,
+        // pageEntry,
         isMPA,
         data,
         entry,
         extraData,
     } = payload
     let content = ''
-    const entryJsPath = (() => {
-        if (isMPA) {
-            // entry case: src/pages/index/main.ts or /src/pages/index/main.ts or ./src/pages/index/main.ts => /src/pages/index/main.ts
-            if (pageEntry.includes('src')) {
-                return `/${pageEntry.replace('/./', '/').replace('//', '/')}`
-            }
-            return ['/', '/index.html'].includes(extraData.url)
-                ? `/${pagesDir}/index/${pageEntry}`
-                : `/${pagesDir}/${pageName}/${pageEntry}`
-        }
-        return entry
-    })()
+    // const entryJsPath = (() => {
+    //     if (isMPA) {
+    //         // entry case: src/pages/index/main.ts or /src/pages/index/main.ts or ./src/pages/index/main.ts => /src/pages/index/main.ts
+    //         if (pageEntry.includes('src')) {
+    //             return `/${pageEntry.replace('/./', '/').replace('//', '/')}`
+    //         }
+    //         return ['/', '/index.html'].includes(extraData.url)
+    //             ? `/${pagesDir}/index/${pageEntry}`
+    //             : `/${pagesDir}/${pageName}/${pageEntry}`
+    //     }
+    //     return entry
+    // })()
     try {
         content = await readHtmlTemplate(templatePath)
     } catch (e) {
@@ -63,7 +63,7 @@ export async function getHtmlContent(payload: Payload) {
         // for compatibility
         htmlWebpackPlugin: {
             options: {
-                title: pageTitle,
+                // title: pageTitle,
             },
             tags: {
                 headTags: [],
@@ -79,13 +79,13 @@ export async function getHtmlContent(payload: Payload) {
         },
         // for compatibility
         webpackConfig: {
-            name: pageTitle,
+            // name: pageTitle,
             output: {
                 publicPath: extraData.base,
             },
         },
         /** page title, both SPA & MPA supported */
-        title: pageTitle,
+        // title: pageTitle,
         // @see https://cli.vuejs.org/guide/html-and-static-assets.html#html
         BASE_URL: extraData.base,
         // envs

@@ -9,8 +9,10 @@ import {
 } from 'react-router-dom'
 
 // @ts-ignore
-// import loadPages from 'virtaul:reacticajs:pages-sync';
+// import loadPages from 'virtual:reacticajs:pages-sync';
 import { RouterProvider } from './router';
+import { AuthProvider } from './auth';
+import { CookiesProvider } from './cookies';
 
 // export const RoutesX = () => {
 
@@ -44,16 +46,16 @@ function App({ loadPages }: any) {
   
   const { routes, Wrapper } = loadPages({ state: data });
 
-  console.log('routes', routes)
-
   // @ts-ignore
   const pages = useRoutes(routes);
 
   return (
     <RouterProvider routes={pages}>
-      <Wrapper>
-        {pages}
-      </Wrapper>
+      <AuthProvider>
+        <Wrapper>
+          {pages}
+        </Wrapper>
+      </AuthProvider>
     </RouterProvider>
   );
   
@@ -77,9 +79,11 @@ export async function startClient(loadPages: any) {
   const app = document.getElementById('reactica-app') as Element
 
   const application = (
-    <Router>
-      <App loadPages={loadPages} />
-    </Router>
+      <CookiesProvider context={null}>
+        <Router>
+          <App loadPages={loadPages} />
+        </Router>
+      </CookiesProvider>
   );
 
   if (app.hasChildNodes()) hydrate(application, app)

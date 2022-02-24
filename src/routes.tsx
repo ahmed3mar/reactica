@@ -1,7 +1,7 @@
 import React, { Fragment } from "react"
-import { BrowserRouter, RouteProps, Route, Routes as RoutesRouter } from 'react-router-dom'
+import { RouteProps } from 'react-router-dom'
 
-import Guard from "./Guard";
+import Guard from "./guard";
 
 const Application = ({Component, pageProps }: any) => {
     return <Component {...pageProps} />
@@ -29,15 +29,15 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, lazyLoad:
     const App = preservedRoutes?.['_app'] || Application
     const NotFound = preservedRoutes?.['404'] || Fragment
     const Wrapper = preservedRoutes?.['_wrapper'] || Fragment
-    const Document = preservedRoutes?.['_document'] || Fragment
+    // const Document = preservedRoutes?.['_document'] || Fragment
 
     // @ts-ignore
-    const validScope = App.validScope || (({ user, scope }): boolean => {
-        if (!scope) return true;
-        if (typeof scope === "string") scope = [scope];
+    const validGuard = App.validGuard || (({ user, guard }): boolean => {
+        if (!guard) return true;
+        if (typeof guard === "string") guard = [guard];
 
-        if (scope.includes("guest") && user) return false;
-        if (!scope.includes("guest") && !user) return false;
+        if (guard.includes("guest") && user) return false;
+        if (!guard.includes("guest") && !user) return false;
 
         return true;
     });
@@ -76,7 +76,7 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, lazyLoad:
                     // component={lazy(module)}
                     {...(module?.meta || {})}
                     // module={module}
-                    validScope={validScope}
+                    validGuard={validGuard}
                 />
             ),
             // element: module().then((mod: any) => (mod?.default ? mod.default : <></>)),
@@ -164,7 +164,7 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, lazyLoad:
 
     const routes = [...regularRoutes, { path: '*', element: <NotFound /> }]
 
-    return { App, Wrapper, Document, routes };
+    return { App, Wrapper, routes };
     // return routes.map((item: any) => {
     //     console.log('item', item)
     //     const meta = item.element?.meta;

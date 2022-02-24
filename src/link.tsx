@@ -22,10 +22,6 @@ const Link = ({ href, name, children, ...rest }: LinkProps) => {
         }
     }
 
-    function doSomething(value: any) {
-        console.log("doSomething called by child with value:", value);
-      }
-
     const childrenWithProps = React.Children.map(children, child => {
         // Checking isValidElement is the safe way and avoids a typescript
         // error too.

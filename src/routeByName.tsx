@@ -1,5 +1,5 @@
 // @ts-ignore
-import routes from 'virtaul:reacticajs:pages-sync';
+import routes from 'virtual:reacticajs:pages-sync';
 
 export const routeByName = (name: string, args: any): string => {
     // @ts-ignore

@@ -1,4 +1,5 @@
 import React, { Fragment, Suspense, useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "./auth";
 import { useRouter } from "./router";
 
@@ -6,6 +7,7 @@ const isBrowser = typeof window !== 'undefined';
 const AsyncFunction = (async () => { }).constructor;
 
 const SSR = ({ app: App, component: Component, context = {}, path, ...props }: any) => {
+
     let { state = {}, ...otherContext } = context;
 
     const router = useRouter();
@@ -14,6 +16,7 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
     newState = {};
 
     let doRequest = true;
+
 
     if (isBrowser && context) {
         context.url = router.pathname;
@@ -24,7 +27,7 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
         } else {
             if (state.page !== path) {
                 newState = {}
-            } else {
+            } else if (context?.state) {
                 newState = state.props;
                 // @ts-ignore
                 doRequest = false;
@@ -53,8 +56,6 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
     const [data, setData] = useState({
         [router.pathname]: newState,
     });
-
-    console.log('router.pathname', router.pathname, state)
 
     const getInitialPropsComponentProps = {
         err: undefined,
@@ -170,38 +171,38 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
 
 }
 
-SSR.ahmed = () => {
-
-}
-
-const Guard = ({ context, app: App, component: Component, scope, validScope }: {
+const Guard = ({ context, app: App, component: Component, guard, validGuard }: {
     context: any,
     app: any,
     component: any,
-    scope?: string | string[],
-    validScope: any,
+    guard?: string | string[],
+    validGuard: any,
 }) => {
 
     const auth = useAuth();
 
-    const isValidScope = auth ? validScope({ user: auth?.user, scope: scope }) : true;
+    const isValidGuard = auth ? validGuard({ user: auth?.user, guard: guard }) : true;
 
-    if (typeof isValidScope === "boolean") {
-        if (!isValidScope) {
+    if (typeof isValidGuard === "boolean") {
+        if (!isValidGuard) {
             return (
                 <div>
-                    Not valid scope
+                    Not valid guard
                 </div>
             )
         }
+    } else if (typeof isValidGuard === "string") {
+        return (
+            <Navigate to={isValidGuard} />
+        );
     } else {
-        return isValidScope;
+        return isValidGuard;
     }
 
     if (Component) return (
         <SSR
-            App={App}
-            Component={Component}
+            app={App}
+            component={Component}
             context={context}
         />
         // <Component />
@@ -217,4 +218,4 @@ const Guard = ({ context, app: App, component: Component, scope, validScope }: {
 }
 
 
-export default SSR;
+export default Guard;

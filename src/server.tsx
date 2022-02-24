@@ -8,9 +8,11 @@ import {
 } from 'react-router-dom'
 
 // @ts-ignore
-import loadPages from 'virtaul:reacticajs:pages-sync'
+import loadPages from 'virtual:reacticajs:pages-sync'
 import {StaticRouter} from "react-router-dom/server";
 import { RouterProvider } from './router';
+import { AuthProvider } from './auth';
+import { CookiesProvider } from './cookies';
 
 function App({ context }) {
     const { routes, Wrapper } = loadPages(context)
@@ -18,11 +20,13 @@ function App({ context }) {
     const pages = useRoutes(routes);
 
     return (
+        <AuthProvider>
         <RouterProvider routes={pages}>
-            <Wrapper>
-                {pages}
-            </Wrapper>
+                <Wrapper>
+                    {pages}
+                </Wrapper>
         </RouterProvider>
+            </AuthProvider>
       );
       
     return (
@@ -65,7 +69,9 @@ export const Application = ({context}: any) => {
 export const server = (context) => {
     return () => {
         return (
-            <Application context={context} />
+            <CookiesProvider context={context.cookies}>
+                <Application context={context} />
+            </CookiesProvider>
         )
     }
 }
