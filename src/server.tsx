@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { Suspense } from 'react'
-import ReactDOM from 'react-dom'
+import ReactDOMServer from 'react-dom/server'
 import {
     Route,
     useRoutes,
@@ -9,10 +9,25 @@ import {
 
 // @ts-ignore
 import loadPages from 'virtual:reacticajs:pages-sync'
-import {StaticRouter} from "react-router-dom/server";
+import { StaticRouter } from "react-router-dom/server";
 import { RouterProvider } from './router';
 import { AuthProvider } from './auth';
 import { CookiesProvider } from './cookies';
+import { HtmlContext } from './html-context';
+
+import AmpStateContext from 'virtual:reacticajs:context:AmpState'
+import HeadManagerContext from 'virtual:reacticajs:context:HeadManager'
+
+let head: JSX.Element[] = [];//defaultHead(inAmpMode)
+
+const pageConfig = {};
+const query = {};
+
+const ampState = {
+    ampFirst: pageConfig.amp === true,
+    hasQuery: Boolean(query.amp),
+    hybrid: pageConfig.amp === 'hybrid',
+}
 
 function App({ context }) {
     const { routes, Wrapper } = loadPages(context)
@@ -21,14 +36,30 @@ function App({ context }) {
 
     return (
         <AuthProvider>
-        <RouterProvider routes={pages}>
-                <Wrapper>
-                    {pages}
-                </Wrapper>
-        </RouterProvider>
-            </AuthProvider>
-      );
-      
+            <RouterProvider serverContext={context} routes={pages}>
+                <AmpStateContext.Provider value={ampState}>
+                    <HeadManagerContext.Provider
+
+                        value={{
+                            updateHead: (state) => {
+                                head = state
+                            },
+                            updateScripts: (scripts) => {
+                                scriptLoader = scripts
+                            },
+                            scripts: {},
+                            mountedInstances: new Set(),
+                        }}
+                    >
+                        <Wrapper>
+                            {pages}
+                        </Wrapper>
+                    </HeadManagerContext.Provider>
+                </AmpStateContext.Provider>
+            </RouterProvider>
+        </AuthProvider>
+    );
+
     return (
         <Wrapper>
             <Routes>
@@ -39,7 +70,7 @@ function App({ context }) {
                 })}
             </Routes>
         </Wrapper>
-      );
+    );
     return useRoutes(routes)
 
     return (
@@ -58,7 +89,7 @@ function App({ context }) {
     )
 }
 
-export const Application = ({context}: any) => {
+export const Application = ({ context }: any) => {
     return (
         <StaticRouter location={context.url}>
             <App context={context} />
@@ -74,4 +105,25 @@ export const server = (context) => {
             </CookiesProvider>
         )
     }
+}
+
+export const renderString = context => {
+    const { routes, Document } = loadPages(context)
+
+    const html = ReactDOMServer.renderToString(
+        <HtmlContext.Provider value={{
+            head,
+            docComponentsRendered: {}
+        }}>
+            <Document />
+        </HtmlContext.Provider>
+    );
+
+    const content = ReactDOMServer.renderToString(
+        <CookiesProvider context={context.cookies}>
+            <Application context={context} />
+        </CookiesProvider>
+    )
+
+    return html.replace('<div id="reactica-app"></div>', `<div id="reactica-app">${content}</div>`)
 }

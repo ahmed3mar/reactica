@@ -47,12 +47,26 @@
       "import": "./dist/auth.mjs",
       "types": "./dist/auth.d.ts"
     },
+    "./head": {
+      "require": "./dist/head.js",
+      "import": "./dist/head.mjs",
+      "types": "./dist/head.d.ts"
+    },
+    "./document": {
+      "require": "./dist/document.js",
+      "import": "./dist/document.mjs",
+      "types": "./dist/document.d.ts"
+    },
     "./routes": {
       "require": "./dist/routes.js",
       "import": "./dist/routes.mjs",
       "types": "./dist/routes.d.ts"
     },
-    "./server": "./dist/server.mjs",
+    "./server": {
+      "require": "./dist/server.js",
+      "import": "./dist/server.mjs",
+      "types": "./dist/server.d.ts"
+    },
     "./client": {
       "require": "./dist/client.js",
       "import": "./dist/client.mjs",

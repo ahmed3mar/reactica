@@ -3,7 +3,6 @@ import { InlineConfig, normalizePath, SSROptions } from "vite";
 import { FullConfig, ReacticaDeploymentTarget } from "../../../index";
 import { reacticaVitePlugin } from "./vite-plugin";
 
-import Pages from '../../pages'
 import react from '@vitejs/plugin-react'
 
 const resolve = (p: string) => path.resolve(process.cwd(), p)
@@ -87,13 +86,13 @@ export async function makeViteConfig(
         plugins: [
             ...(viteConfig.plugins || []),
 
-            Pages({
-                importMode: "sync",
-                resolver: "react",
-                routeStyle: "next",
-                extensions: ["tsx", "jsx"],
-                pagesDir: pagesDir,
-            }),
+            // Pages({
+            //     importMode: "sync",
+            //     resolver: "react",
+            //     routeStyle: "next",
+            //     extensions: ["tsx", "jsx"],
+            //     pagesDir: pagesDir,
+            // }),
 
             await reacticaVitePlugin({
                 srcDir,

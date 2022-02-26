@@ -1,7 +1,7 @@
 import React, { Fragment, Suspense, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "./auth";
-import { useRouter } from "./router";
+import { useRouter, RedirectTo } from "./router";
 
 const isBrowser = typeof window !== 'undefined';
 const AsyncFunction = (async () => { }).constructor;
@@ -171,33 +171,74 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
 
 }
 
-const Guard = ({ context, app: App, component: Component, guard, validGuard }: {
+const Guard = ({ context, app: App, component: Component, guard, validGuard, middleware, middlewares }: {
     context: any,
     app: any,
     component: any,
+    middleware?: string | string[],
     guard?: string | string[],
+    middlewares: any,
     validGuard: any,
 }) => {
 
     const auth = useAuth();
+    const router = useRouter();
 
-    const isValidGuard = auth ? validGuard({ user: auth?.user, guard: guard }) : true;
+    const middleware_list = (typeof middleware === "string") ? [middleware] : (middleware || []);
 
-    if (typeof isValidGuard === "boolean") {
-        if (!isValidGuard) {
-            return (
-                <div>
-                    Not valid guard
-                </div>
-            )
-        }
-    } else if (typeof isValidGuard === "string") {
-        return (
-            <Navigate to={isValidGuard} />
-        );
-    } else {
-        return isValidGuard;
+    const [authChecked, setAuthChecked] = useState(!isBrowser || !middleware_list.length)
+
+
+    if (middleware_list.length && !middleware_list?.every((m: string) => middlewares[m])) {
+        console.warn(`You have to define all the middlrwares in _app ${JSON.stringify(middleware_list)} and in _app ${JSON.stringify(Object.keys(middlewares))}`);
     }
+
+    if (!isBrowser) {
+        middleware_list.map(middle => {
+            const the_middle = middlewares[middle]({ user: auth?.user, context: context, router, redirect: router.redirect });
+            // console.log('the_middle', middle, the_middle, typeof the_middle, the_middle instanceof RedirectTo)
+        })
+    }
+
+    useEffect(() => {
+
+        if (isBrowser) {
+            setAuthChecked(!middleware_list.length)
+
+            for (let i = 0; i < middleware_list.length; i++) {
+                const middle = middleware_list[i];
+                const the_middle = middlewares[middle]({ user: auth?.user, context: context, router, redirect: router.redirect });
+                // console.log('the_middle', the_middle)
+                if (the_middle === true) {
+                    setAuthChecked(true);
+                }
+            }
+        }
+        // middleware_list.map(middle => {
+        //     const the_middle = middlewares[middle]({ user: auth?.user, context: context, router, redirect: router.push });
+        //     console.log('the_middle', middle, the_middle, typeof the_middle, the_middle instanceof RedirectTo)
+        // })
+    }, [router.pathname, auth?.user])
+
+    // const isValidGuard = auth ? validGuard({ user: auth?.user, guard: guard }) : true;
+
+    // if (typeof isValidGuard === "boolean") {
+    //     if (!isValidGuard) {
+    //         return (
+    //             <div>
+    //                 Not valid guard
+    //             </div>
+    //         )
+    //     }
+    // } else if (typeof isValidGuard === "string") {
+    //     return (
+    //         <Navigate to={isValidGuard} />
+    //     );
+    // } else {
+    //     return isValidGuard;
+    // }
+
+    // if (!authChecked) return null
 
     if (Component) return (
         <SSR

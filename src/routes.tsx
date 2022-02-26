@@ -1,5 +1,6 @@
 import React, { Fragment } from "react"
 import { RouteProps } from 'react-router-dom'
+import DocumentComponent from "./document";
 
 import Guard from "./guard";
 
@@ -29,18 +30,23 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, lazyLoad:
     const App = preservedRoutes?.['_app'] || Application
     const NotFound = preservedRoutes?.['404'] || Fragment
     const Wrapper = preservedRoutes?.['_wrapper'] || Fragment
-    // const Document = preservedRoutes?.['_document'] || Fragment
+    const Document = preservedRoutes?.['_document'] || DocumentComponent
 
     // @ts-ignore
-    const validGuard = App.validGuard || (({ user, guard }): boolean => {
-        if (!guard) return true;
-        if (typeof guard === "string") guard = [guard];
-
-        if (guard.includes("guest") && user) return false;
-        if (!guard.includes("guest") && !user) return false;
-
-        return true;
-    });
+    const middlewares = App.middlewares || {
+        'auth': ({ pageProps, next, user, router }: any) => {
+            if (!user) {
+                return router.push('/login')
+            }
+            return next()
+        },
+        'guest': ({ pageProps, next, user, router }: any) => {
+            if (user) {
+                return router.push('/')
+            }
+            return next()
+        },
+    };
 
     const regularRoutes = Object.keys(ROUTES).reduce<RouteProps[]>((routes, key) => {
         const module = ROUTES[key]
@@ -56,7 +62,7 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, lazyLoad:
 
         segments = ('/' + segments).replace(/\/\//g, '/')
 
-        if (['_app', '_wrapper', '404'].includes(segments)) return routes
+        if (['_app', '_wrapper', '_document', '404'].includes(segments)) return routes
 
         if (segments.length > 1 && segments[segments.length - 1] == '/') {
             segments = segments.slice(0, -1);
@@ -76,7 +82,7 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, lazyLoad:
                     // component={lazy(module)}
                     {...(module?.meta || {})}
                     // module={module}
-                    validGuard={validGuard}
+                    middlewares={middlewares}
                 />
             ),
             // element: module().then((mod: any) => (mod?.default ? mod.default : <></>)),
@@ -164,7 +170,7 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, lazyLoad:
 
     const routes = [...regularRoutes, { path: '*', element: <NotFound /> }]
 
-    return { App, Wrapper, routes };
+    return { App, Wrapper, Document, routes };
     // return routes.map((item: any) => {
     //     console.log('item', item)
     //     const meta = item.element?.meta;

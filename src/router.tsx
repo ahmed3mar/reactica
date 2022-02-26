@@ -1,16 +1,22 @@
 import React, { createContext, useContext, useMemo } from 'react'
-import {useLocation, useParams, useNavigate} from 'react-router-dom'
+import {useLocation, useParams, useNavigate, NavigateFunction, To, NavigateOptions} from 'react-router-dom'
 
-type RouterContext = {
+type RouterContextProps = {
     routes: any,
 }
 
-const RouterContext = createContext<RouterContext | null>(null);
+// @ts-ignore
+import RouterContext from "virtual:reacticajs:context:Router";
 
-export const RouterProvider = ({ routes, children }: { routes: any, children: React.ReactNode }) => {
+// const RouterContext = RC as RouterContextProps;
+
+// const RouterContext = createContext<RouterContext | null>(null);
+
+export const RouterProvider = ({ routes, children, serverContext }: { routes: any, children: React.ReactNode, serverContext?: any }) => {
     const value = //useMemo(
         // () => 
         ({
+            serverContext,
             routes,
             getRouteByName: (name: string, args: any) => {
                 // @ts-ignore
@@ -34,18 +40,36 @@ export const RouterProvider = ({ routes, children }: { routes: any, children: Re
 
 };
 
+const isBrowser = typeof window !== 'undefined'
+
+export class RedirectTo {
+    to?: To
+
+    constructor(context: any, to: To) {
+        this.to = to;
+        if (!isBrowser) context.serverContext.redirect = to;
+    }
+}
+
 export const useRouter = () => {
-    const context = useContext(RouterContext)
+    const context = useContext<RouterContextProps>(RouterContext)
     const params = useParams();
     const location = useLocation();
     const navigate = useNavigate();
     
-    // if (!context) throw Error('useRouter should be used within <RouterProvider />')
+    if (!context) throw Error('useRouter should be used within <RouterProvider />')
+
     return {
         ...context,
         params,
         ...location,
-        push: navigate,
+        push: (to: To, options?: NavigateOptions) : void | RedirectTo => {
+            if (isBrowser) navigate(to, options)
+            else return new RedirectTo(context, to);
+        },
+        redirect: (to: To, options?: NavigateOptions) : void | RedirectTo => {
+            return new RedirectTo(context, to);
+        },
     }
 }
 

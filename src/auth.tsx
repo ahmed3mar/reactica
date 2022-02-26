@@ -1,4 +1,4 @@
-import React, { createContext, useMemo, useContext, useReducer } from "react"
+import React, { createContext, useMemo, useContext, useReducer, useEffect } from "react"
 import { useCookies } from "./cookies";
 // import { storage } from "./storage";
 
@@ -58,6 +58,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const cookies = useCookies();
     if (cookies) {
+        console.log('cookies', cookies.get('token'))
         initialState.token = cookies.get('token');
         initialState.user = cookies.get('user');
     }
@@ -80,10 +81,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     },
                 }
             })
+            if (cookies) cookies.set('token', 'a0731ae631bc01dea99f13b3f8ed48fc')
+            if (cookies) cookies.set('user', {
+                id: "1",
+                name: "John Doe",
+                email: email,
+            })
             // setToken('token'), storage.set('token', 'a0731ae631bc01dea99f13b3f8ed48fc')
             // setUser({ email }), storage.set('user', { email })
           },
           logOut: () => {
+            if (cookies) {
+                cookies.remove('token')
+                cookies.remove('user')
+            }
             dispatch({
                 type: "LOGOUT",
             })
@@ -97,9 +108,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
+type UseAuthProps = {
+    middleware?: string
+}
+
 export const useAuth = (): AuthContext | null => {
     const context = useContext(AuthContext)
     if (!context) return null;
     if (!context) throw Error('useAuth should be used within <AuthProvider />')
+
+
+    // useEffect(() => {
+    //     if (middleware === 'guest') {
+
+    //     } else if (middleware === 'auth') {
+
+    //     }
+    // }, [])
+
+
     return context as AuthContext
 }

@@ -1,13 +1,72 @@
 import { matchPath } from "./utils/matchPath";
+import path, { basename } from 'path'
 
 // import { matchPath } from 'react-router-dom';
 
-const renderPage = async (viteDevServer: any, pageContextInit: any) => {
+function renderPreloadLinks(modules: any, manifest: any) {
+    let links = ''
+    const seen = new Set()
+    modules.forEach((id: any) => {
+      const files = manifest[id]
+      if (files) {
+        files.forEach((file: any) => {
+          if (!seen.has(file)) {
+            seen.add(file)
+            const filename = basename(file)
+            if (manifest[filename]) {
+              for (const depFile of manifest[filename]) {
+                links += renderPreloadLink(depFile)
+                seen.add(depFile)
+              }
+            }
+            links += renderPreloadLink(file)
+          }
+        })
+      }
+    })
+    return links
+  }
+  
+  function renderPreloadLink(file: any) {
+    if (file.endsWith('.js')) {
+      return `<link rel="modulepreload" crossorigin href="${file}">`
+    } else if (file.endsWith('.css')) {
+      return `<link rel="stylesheet" href="${file}">`
+    } else if (file.endsWith('.woff')) {
+      return ` <link rel="preload" href="${file}" as="font" type="font/woff" crossorigin>`
+    } else if (file.endsWith('.woff2')) {
+      return ` <link rel="preload" href="${file}" as="font" type="font/woff2" crossorigin>`
+    } else if (file.endsWith('.gif')) {
+      return ` <link rel="preload" href="${file}" as="image" type="image/gif">`
+    } else if (file.endsWith('.jpg') || file.endsWith('.jpeg')) {
+      return ` <link rel="preload" href="${file}" as="image" type="image/jpeg">`
+    } else if (file.endsWith('.png')) {
+      return ` <link rel="preload" href="${file}" as="image" type="image/png">`
+    } else {
+      // TODO
+      return ''
+    }
+  }
 
-    const { render } = await viteDevServer.ssrLoadModule("pages/_document");
-    const {server} = await viteDevServer.ssrLoadModule("virtual:reacticajs:server");
+const renderPage = async (viteDevServer: any, isProduction: boolean, root: string, pageContextInit: any) => {
 
-    const loadPages = (await viteDevServer.ssrLoadModule("virtual:reacticajs:pages-sync")).default;
+    let loadPages;
+    let renderString;
+    if (isProduction) {
+        const { renderString: RS, loadPages: LP, ...o } = require(root + '/dist/server/server.js');
+
+        // const manifest = require(root + '/dist/ssr-manifest.json');
+        // const preloadLinks = renderPreloadLinks([], manifest)
+
+        loadPages = LP
+        renderString = RS
+    } else {
+        // const { render } = await viteDevServer.ssrLoadModule("pages/_document");
+        let {renderString: renderStringF} = await viteDevServer.ssrLoadModule("virtual:reacticajs:server");
+        renderString = renderStringF;
+
+        loadPages = (await viteDevServer.ssrLoadModule("virtual:reacticajs:pages-sync")).default;
+    }
 
     const {routes: pages} = loadPages(pageContextInit);
 
@@ -104,14 +163,29 @@ const renderPage = async (viteDevServer: any, pageContextInit: any) => {
 
     pageContextInit['state'] = contextData;
 
-    const data = await render({
-        Main: await server(pageContextInit),
-        pageProps: contextData['props'],
-    });
+    // console.log('renderStringrenderStringrenderString', 
+    //     await renderString(pageContextInit)
+    // )
 
-    let html = await viteDevServer.transformIndexHtml('/', data.documentHtml)
+    // const data = await render({
+    //     Main: await server(pageContextInit),
+    //     pageProps: contextData['props'],
+    // });
 
-    html = html.replace('</body>', '</body>' + `
+    let html = isProduction ? await renderString(pageContextInit) : await viteDevServer.transformIndexHtml('/', await renderString(pageContextInit))
+
+    if (pageContextInit?.redirect) {
+        pageContext.httpResponse = {
+            statusCode: 301,
+            headers: {
+                location: pageContextInit.redirect
+            }
+        }
+
+        return pageContext
+    }
+
+    html = isProduction ? html : html.replace('</body>', '</body>' + `
         <script type="module" src="/reactica:start.js"></script>
     `)
 
@@ -130,7 +204,7 @@ const renderPage = async (viteDevServer: any, pageContextInit: any) => {
     
     }
 
-    html = html.replace(`<!--app-state-->`, `<script>window.__INITIAL_DATA = ${JSON.stringify(contextData)};</script>${css}`)
+    html = html.replace(`<meta name="reactica-head"/>`, `<script>window.__INITIAL_DATA = ${JSON.stringify(contextData)};</script>${css}`)
 
 
     let cssUrls = new Set(), cssJsUrls = new Set()
@@ -175,6 +249,6 @@ const renderPage = async (viteDevServer: any, pageContextInit: any) => {
     return pageContext
 }
 
-export const createPageRenderer = ({ viteDevServer }: any) => {
-    return async (context: any) => await renderPage(viteDevServer, context)
+export const createPageRenderer = ({ viteDevServer, isProduction, root }: any) => {
+    return async (context: any) => await renderPage(viteDevServer, isProduction, root, context)
 }

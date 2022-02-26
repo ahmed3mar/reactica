@@ -7,7 +7,6 @@ import { getHtmlContent } from './lib/utils'
 
 import Inspect from 'vite-plugin-inspect'
 // import Pages from 'vite-plugin-pages'
-import Pages from '../../pages'
 
 const resolve = (p: string) => path.resolve(process.cwd(), p)
 // must src to corresponding with vite-plugin-mpa#closeBundle hook
@@ -109,10 +108,16 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
                 return path.resolve(__dirname, '../../../src/server.tsx');
             } else if (id === "virtual:reacticajs:cookies-context") {
                 return "virtual:reacticajs:cookies-context";
+            } else if (id === "virtual:reacticajs:html-context") {
+                return "virtual:reacticajs:html-context";
             } else if (id === "virtual:reacticajs:auth-context") {
                 return "virtual:reacticajs:auth-context";
             } else if (id === "virtual:reacticajs:context") {
                 return "virtual:reacticajs:context";
+            } else if (id.startsWith("virtual:reacticajs:context:")) {
+                return id
+            } else if (id == "virtual:reacticajs:side-effect") {
+                return path.resolve(__dirname, '../../../src/side-effect.tsx');
             }
 
             else if (["virtual:reacticajs:pages-sync", "virtual:reacticajs:pages-async"].includes(id)) {
@@ -123,6 +128,16 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
         },
         /** for dev */
         load(id) {
+
+            if (id.startsWith("virtual:reacticajs:context:")) {
+                const vara = id.replace("virtual:reacticajs:context:", "");
+                return `
+                    import{ createContext } from "react"
+                    const ${vara}Context = createContext(null);
+                    export default ${vara}Context;
+                `
+            } else 
+
             if (id === "virtual:reacticajs:cookies-context") {
                 return `
                 import{ createContext } from "react"
@@ -134,6 +149,12 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
                 import{ createContext } from "react"
                 const AuthContext = createContext(null);
                 export default AuthContext;
+                `
+            } else if (id === "virtual:reacticajs:html-context") {
+                return `
+                import{ createContext } from "react"
+                const HtmlContext = createContext(null);
+                export default HtmlContext;
                 `
             } else if (id === "virtual:reacticajs:context") {
                 return `
@@ -247,7 +268,7 @@ export function useCreateContext<StateType, ActionType>(
                 // `
             } else if (id === "virtual:reacticajs:pages-sync") {
                 return `
-                    const PRESERVED = import.meta.globEager('/src/pages/(_app|_wrapper|404).(ts|tsx|js|jsx)')
+                    const PRESERVED = import.meta.globEager('/src/pages/(_app|_wrapper|_document|404).(ts|tsx|js|jsx)')
                     const ROUTES = import.meta.globEager('/src/pages/**/[a-z[]*.(ts|tsx|js|jsx)')
                     import { parseRoutes } from 'reactica/routes';
 
@@ -255,7 +276,7 @@ export function useCreateContext<StateType, ActionType>(
                 `
             } else if (id === "virtual:reacticajs:pages-async") {
                 return `
-                    const PRESERVED = import.meta.globEager('/src/pages/(_app|_wrapper|404).(ts|tsx|js|jsx)')
+                    const PRESERVED = import.meta.globEager('/src/pages/(_app|_wrapper|_document|404).(ts|tsx|js|jsx)')
                     const ROUTES = import.meta.glob('/src/pages/**/[a-z[]*.(ts|tsx|js|jsx)')
 
                     import { parseRoutes } from 'reactica/routes';
