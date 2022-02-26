@@ -136,9 +136,7 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
                     const ${vara}Context = createContext(null);
                     export default ${vara}Context;
                 `
-            } else 
-
-            if (id === "virtual:reacticajs:cookies-context") {
+            } else if (id === "virtual:reacticajs:cookies-context") {
                 return `
                 import{ createContext } from "react"
                 const CookiesContext = createContext(null);

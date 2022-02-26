@@ -14,116 +14,59 @@ import { RouterProvider } from './router';
 import { AuthProvider } from './auth';
 import { CookiesProvider } from './cookies';
 import { HtmlContext } from './html-context';
+import { HelmetProvider, Helmet } from 'react-helmet-async';
 
-import AmpStateContext from 'virtual:reacticajs:context:AmpState'
-import HeadManagerContext from 'virtual:reacticajs:context:HeadManager'
+const helmetContext = {};
 
-let head: JSX.Element[] = [];//defaultHead(inAmpMode)
-
-const pageConfig = {};
-const query = {};
-
-const ampState = {
-    ampFirst: pageConfig.amp === true,
-    hasQuery: Boolean(query.amp),
-    hybrid: pageConfig.amp === 'hybrid',
-}
-
-function App({ context }) {
-    const { routes, Wrapper } = loadPages(context)
-
+function App({ routes, Wrapper, context }) {
     const pages = useRoutes(routes);
 
     return (
-        <AuthProvider>
-            <RouterProvider serverContext={context} routes={pages}>
-                <AmpStateContext.Provider value={ampState}>
-                    <HeadManagerContext.Provider
-
-                        value={{
-                            updateHead: (state) => {
-                                head = state
-                            },
-                            updateScripts: (scripts) => {
-                                scriptLoader = scripts
-                            },
-                            scripts: {},
-                            mountedInstances: new Set(),
-                        }}
-                    >
-                        <Wrapper>
-                            {pages}
-                        </Wrapper>
-                    </HeadManagerContext.Provider>
-                </AmpStateContext.Provider>
-            </RouterProvider>
-        </AuthProvider>
+        <HelmetProvider context={helmetContext}>
+            <AuthProvider>
+                <RouterProvider serverContext={context} routes={pages}>
+                    <Wrapper>
+                    <Helmet>
+        <title>Hello World</title>
+        <link rel="canonical" href="https://www.tacobell.com/" />
+      </Helmet>
+                        {pages}
+                    </Wrapper>
+                </RouterProvider>
+            </AuthProvider>
+        </HelmetProvider>
     );
 
-    return (
-        <Wrapper>
-            <Routes>
-                {routes.map(route => {
-                    return (
-                        <Route key={route.path} path={route.path} element={route.element} />
-                    )
-                })}
-            </Routes>
-        </Wrapper>
-    );
-    return useRoutes(routes)
-
-    return (
-        <Routes>
-            {routes.map(route => {
-                const Comp = route.element;
-                return (
-                    <Route key={route.path || '/'} path={'/' + (route.path || '')} element={
-                        <Suspense fallback={null}>
-                            <Comp />
-                        </Suspense>
-                    } />
-                )
-            })}
-        </Routes>
-    )
 }
 
-export const Application = ({ context }: any) => {
+export const Application = ({ routes, Wrapper, context }: any) => {
     return (
         <StaticRouter location={context.url}>
-            <App context={context} />
+            <App routes={routes} Wrapper={Wrapper} context={context} />
         </StaticRouter>
     )
 }
 
-export const server = (context) => {
-    return () => {
-        return (
-            <CookiesProvider context={context.cookies}>
-                <Application context={context} />
-            </CookiesProvider>
-        )
-    }
-}
-
 export const renderString = context => {
-    const { routes, Document } = loadPages(context)
+    const { routes, Document, Wrapper } = loadPages(context)
+
+    const content = ReactDOMServer.renderToString(
+        <CookiesProvider context={context.cookies}>
+            <Application routes={routes} Wrapper={Wrapper} context={context} />
+        </CookiesProvider>
+    )
+
+    console.log('helmetContext', helmetContext.title)
 
     const html = ReactDOMServer.renderToString(
         <HtmlContext.Provider value={{
-            head,
+            // head,
+            helmetContext,
             docComponentsRendered: {}
         }}>
             <Document />
         </HtmlContext.Provider>
     );
-
-    const content = ReactDOMServer.renderToString(
-        <CookiesProvider context={context.cookies}>
-            <Application context={context} />
-        </CookiesProvider>
-    )
 
     return html.replace('<div id="reactica-app"></div>', `<div id="reactica-app">${content}</div>`)
 }

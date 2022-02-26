@@ -114,7 +114,7 @@ export class Head extends Component<
 
         // this.context.docComponentsRendered.Head = true
 
-        let { head } = this.context
+        let { head, helmetContext } = this.context
 
         let cssPreloads: Array<JSX.Element> = []
         let otherHeadElements: Array<JSX.Element> = []
@@ -223,8 +223,18 @@ export class Head extends Component<
         // )
 
 
+        const helmet = helmetContext;
+
+        console.log('helmet?.title?.toString()', helmetContext, helmet?.title?.toString())
+
         return (
             <head {...this.props}>
+                {helmet?.title?.toString()}
+                {helmet?.priority?.toString()}
+                {helmet?.meta?.toString()}
+                {helmet?.link?.toString()}
+                {helmet?.script?.toString()}
+
                 {!hasConcurrentFeatures && this.context.isDevelopment && (
                     <>
                         <style

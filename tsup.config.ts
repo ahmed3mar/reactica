@@ -17,6 +17,7 @@ export default defineConfig({
         // "src/placeholder-loader.tsx",
     ],
     external: [
+        'react-helmet-async',
         'virtual:reacticajs:context:Router',
         'virtual:reacticajs:side-effect',
         '$output/reactica-manifest.json',
