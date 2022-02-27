@@ -26,10 +26,6 @@ function App({ routes, Wrapper, context }) {
             <AuthProvider>
                 <RouterProvider serverContext={context} routes={pages}>
                     <Wrapper>
-                    <Helmet>
-        <title>Hello World</title>
-        <link rel="canonical" href="https://www.tacobell.com/" />
-      </Helmet>
                         {pages}
                     </Wrapper>
                 </RouterProvider>
@@ -56,12 +52,10 @@ export const renderString = context => {
         </CookiesProvider>
     )
 
-    console.log('helmetContext', helmetContext.title)
-
     const html = ReactDOMServer.renderToString(
         <HtmlContext.Provider value={{
             // head,
-            helmetContext,
+            helmetContext: helmetContext.helmet,
             docComponentsRendered: {}
         }}>
             <Document />

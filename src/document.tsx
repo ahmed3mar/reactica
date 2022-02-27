@@ -225,15 +225,13 @@ export class Head extends Component<
 
         const helmet = helmetContext;
 
-        console.log('helmet?.title?.toString()', helmetContext, helmet?.title?.toString())
-
         return (
             <head {...this.props}>
-                {helmet?.title?.toString()}
-                {helmet?.priority?.toString()}
-                {helmet?.meta?.toString()}
-                {helmet?.link?.toString()}
-                {helmet?.script?.toString()}
+                {helmet?.title?.toComponent()}
+                {helmet?.priority?.toComponent()}
+                {helmet?.meta?.toComponent()}
+                {helmet?.link?.toComponent()}
+                {helmet?.script?.toComponent()}
 
                 {!hasConcurrentFeatures && this.context.isDevelopment && (
                     <>
