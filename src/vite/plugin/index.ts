@@ -235,7 +235,7 @@ export function useCreateContext<StateType, ActionType>(
             } else if (id === "reactica:start.js") {
                 return `
                     import {startClient} from 'reactica/client'
-                    import loadPages from 'virtual:reacticajs:pages-sync';
+                    import loadPages from 'virtual:reacticajs:pages-async';
                     startClient(loadPages)
                 `
             } else if (id === "virtual:reacticajs:server") {
@@ -268,22 +268,20 @@ export function useCreateContext<StateType, ActionType>(
                 return `
                     const PRESERVED = import.meta.globEager('/src/pages/(_app|_wrapper|_document|404).(ts|tsx|js|jsx)')
                     const ROUTES = import.meta.globEager('/src/pages/**/[a-z[]*.(ts|tsx|js|jsx)')
+                    const LAYOUTS = import.meta.globEager('/src/pages/**/_layout.(ts|tsx|js|jsx)')
                     import { parseRoutes } from 'reactica/routes';
 
-                    export default (context) => parseRoutes(context, PRESERVED, ROUTES, false);
+                    export default (context) => parseRoutes(context, PRESERVED, ROUTES, LAYOUTS, false);
                 `
             } else if (id === "virtual:reacticajs:pages-async") {
                 return `
                     const PRESERVED = import.meta.globEager('/src/pages/(_app|_wrapper|_document|404).(ts|tsx|js|jsx)')
                     const ROUTES = import.meta.glob('/src/pages/**/[a-z[]*.(ts|tsx|js|jsx)')
+                    const LAYOUTS = import.meta.glob('/src/pages/**/_layout.(ts|tsx|js|jsx)')
 
                     import { parseRoutes } from 'reactica/routes';
 
-                    const { routes, App, Wrapper } = parseRoutes(PRESERVED, ROUTES, true);
-                    export {
-                        App, Wrapper
-                    };
-                    export default routes;
+                    export default (context) => parseRoutes(context, PRESERVED, ROUTES, LAYOUTS, true);
                 `
             }
 

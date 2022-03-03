@@ -9,7 +9,6 @@ import {
 } from 'react-router-dom'
 
 // @ts-ignore
-// import loadPages from 'virtual:reacticajs:pages-sync';
 import { RouterProvider } from './router';
 import { AuthProvider } from './auth';
 import { CookiesProvider } from './cookies';

@@ -1,10 +1,31 @@
-import React, { Fragment, Suspense, useEffect, useState } from "react";
+import React, { Fragment, lazy, Suspense, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "./auth";
 import { useRouter, RedirectTo } from "./router";
 
 const isBrowser = typeof window !== 'undefined';
 const AsyncFunction = (async () => { }).constructor;
+
+export const Lazy = ({ component, ...props }: any) => {
+
+    const [data, setData] = useState<any>(null);
+    const router = useRouter();
+
+   useEffect(() => {
+        component().then((r: any) => {
+            setData({
+                Component: r.default,
+                meta: r?.meta || {},
+            });
+        })
+   }, [router.pathname])
+
+   if (!data) return <div>Loading...</div>;
+
+    return (
+        <Guard component={data.Component} {...props} {...data.meta} />
+    )
+}
 
 const SSR = ({ app: App, component: Component, context = {}, path, ...props }: any) => {
 
@@ -162,6 +183,7 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
             loading={loading}
             pageProps={data[router.pathname] || {}}
             Component={Component}
+            router={router}
         />
     )
 
@@ -171,14 +193,13 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
 
 }
 
-const Guard = ({ context, app: App, component: Component, guard, validGuard, middleware, middlewares }: {
+const Guard = ({ 
+    context, app: App, component: Component, middleware, middlewares, ...other }: {
     context: any,
     app: any,
     component: any,
     middleware?: string | string[],
-    guard?: string | string[],
     middlewares: any,
-    validGuard: any,
 }) => {
 
     const auth = useAuth();
@@ -195,7 +216,11 @@ const Guard = ({ context, app: App, component: Component, guard, validGuard, mid
 
     if (!isBrowser) {
         middleware_list.map(middle => {
-            const the_middle = middlewares[middle]({ user: auth?.user, context: context, router, redirect: router.redirect });
+            const the_middle = middlewares[middle] && middlewares[middle]({ 
+                middleware,
+                ...other,
+                user: auth?.user, context: context, router, redirect: router.redirect,
+            });
             // console.log('the_middle', middle, the_middle, typeof the_middle, the_middle instanceof RedirectTo)
         })
     }
@@ -207,18 +232,28 @@ const Guard = ({ context, app: App, component: Component, guard, validGuard, mid
 
             for (let i = 0; i < middleware_list.length; i++) {
                 const middle = middleware_list[i];
-                const the_middle = middlewares[middle]({ user: auth?.user, context: context, router, redirect: router.redirect });
+                const the_middle = middlewares[middle] ? middlewares[middle]({
+                    middleware,
+                    ...other,
+                    user: auth?.user, context: context, router, redirect: router.redirect
+                }) : true;
                 // console.log('the_middle', the_middle)
                 if (the_middle === true) {
                     setAuthChecked(true);
+                } else if (the_middle) {
+                    setAuthChecked(the_middle);
                 }
+
+                // console.log('the_middle', middle, the_middle)
             }
         }
         // middleware_list.map(middle => {
         //     const the_middle = middlewares[middle]({ user: auth?.user, context: context, router, redirect: router.push });
         //     console.log('the_middle', middle, the_middle, typeof the_middle, the_middle instanceof RedirectTo)
         // })
-    }, [router.pathname, auth?.user])
+    }, [Component, router.pathname, auth?.user])
+
+    // console.log('authChecked', authChecked, router.pathname)
 
     // const isValidGuard = auth ? validGuard({ user: auth?.user, guard: guard }) : true;
 
@@ -238,16 +273,23 @@ const Guard = ({ context, app: App, component: Component, guard, validGuard, mid
     //     return isValidGuard;
     // }
 
-    // if (!authChecked) return null
+    if (!authChecked) return null
 
-    if (Component) return (
-        <SSR
-            app={App}
-            component={Component}
-            context={context}
-        />
-        // <Component />
-    )
+
+    if (authChecked !== true) {
+        return authChecked
+    }
+
+    if (Component) {
+        return (
+            <SSR
+                app={App}
+                component={Component}
+                context={context}
+            />
+            // <Component />
+        )
+    }
 
     //     console.log('Component', Component)
 

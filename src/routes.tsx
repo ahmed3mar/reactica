@@ -1,8 +1,8 @@
-import React, { Fragment } from "react"
+import React, { Fragment, lazy } from "react"
 import { RouteProps } from 'react-router-dom'
 import DocumentComponent from "./document";
 
-import Guard from "./guard";
+import Guard, { Lazy } from "./guard";
 
 const Application = ({Component, pageProps }: any) => {
     return <Component {...pageProps} />
@@ -20,7 +20,7 @@ Application.getInitialProps = async (ctx: any) => {
     };
 }
 
-export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, lazyLoad: boolean = false) => {
+export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, LAYOUTS: any, lazyLoad: boolean = false) => {
 
     const preservedRoutes: Partial<Record<string, () => JSX.Element>> = Object.keys(PRESERVED).reduce((routes, key) => {
         const path = key.replace(/\/src\/pages\/|\.tsx$/g, '')
@@ -38,15 +38,37 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, lazyLoad:
             if (!user) {
                 return router.push('/login')
             }
-            return next()
+            return true
         },
         'guest': ({ pageProps, next, user, router }: any) => {
             if (user) {
                 return router.push('/')
             }
-            return next()
+            return true
         },
     };
+
+    // console.log('LAYOUTS', LAYOUTS)
+
+    // const layouts = Object.keys(LAYOUTS).reduce<RouteProps[]>((routes, key) => {
+    //     const module = ROUTES[key]
+
+    //     let segments = key
+    //         .replace(/\/src\/pages|\.tsx$/g, '')
+    //         .replace(/\[\.{3}.+\]/, '*')
+    //         .replace(/\[(.+)\]/, ':$1')
+    //         .split('/')
+    //         .filter(Boolean)
+    //         .join('/')
+    //         .replace(/index|\./g, '/');
+
+    //     segments = ('/' + segments).replace(/\/\//g, '/')
+
+    //     console.log('segmentssegmentssegments', segments)
+
+    //     return routes
+
+    // }, []);
 
     const regularRoutes = Object.keys(ROUTES).reduce<RouteProps[]>((routes, key) => {
         const module = ROUTES[key]
@@ -70,15 +92,27 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, lazyLoad:
 
         const path = module.meta?.path || segments.replace(/index|\./g, '/')
 
+        let component;
+        let C;
+        // = module?.default ? (!lazyLoad ? module.default : lazy(module.default)) : Fragment
+        if (lazyLoad) {
+            component = module
+            C = Lazy;
+        } else {
+            component = module?.default || Fragment
+            C = Guard;
+        }
+
         const route: RouteProps = {
             // @ts-ignore
-            component: module?.default ? module.default : Fragment,
+            component: component,
             element: (
-                <Guard
-                app={App}
-                path={path}
-                context={context}
-                    component={module?.default ? module.default : Fragment}
+                <C
+                    app={App}
+                    path={path}
+                    context={context}
+                    component={component}
+                    lazyLoad={lazyLoad}
                     // component={lazy(module)}
                     {...(module?.meta || {})}
                     // module={module}
