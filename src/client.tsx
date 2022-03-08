@@ -45,7 +45,7 @@ const data = window?.__INITIAL_DATA;
 
 function App({ loadPages }: any) {
 
-  const { routes, Wrapper } = loadPages({ state: data });
+  const { routes, Wrapper, App } = loadPages({ state: data });
 
   // @ts-ignore
   const pages = useRoutes(routes);
@@ -53,8 +53,7 @@ function App({ loadPages }: any) {
   return (
     <RouterProvider routes={pages}>
       <HelmetProvider>
-
-        <AuthProvider>
+        <AuthProvider app={App}>
           <Wrapper>
             {pages}
           </Wrapper>

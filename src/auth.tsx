@@ -54,7 +54,7 @@ const reducer = (state: typeof initialState, action: any) => {
     return state;
 };
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider = ({ app, children }: { app: any, children: React.ReactNode }) => {
 
     const cookies = useCookies();
     if (cookies) {
@@ -62,6 +62,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         initialState.token = cookies.get('token');
         initialState.user = cookies.get('user');
     }
+
+    console.log('app', app.middlewares)
 
     const [state, dispatch] = useReducer(reducer, initialState)
 
@@ -128,4 +130,16 @@ export const useAuth = (): AuthContext | null => {
 
 
     return context as AuthContext
+}
+
+export const Permission = ({ permissions, children }: {
+    permissions: string[] | string,
+    children: React.ReactNode
+}) => {
+    return (
+        <>
+        xxx
+            {children}
+        </>
+    )
 }
