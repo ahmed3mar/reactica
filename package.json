@@ -42,6 +42,11 @@
       "import": "./dist/index.mjs",
       "types": "./dist/index.d.ts"
     },
+    "./cookies": {
+      "require": "./dist/cookies.js",
+      "import": "./dist/cookies.mjs",
+      "types": "./dist/cookies.d.ts"
+    },
     "./auth": {
       "require": "./dist/auth.js",
       "import": "./dist/auth.mjs",

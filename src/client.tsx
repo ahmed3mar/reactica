@@ -66,13 +66,12 @@ function App({ loadPages }: any) {
 
 export async function startClient(loadPages: any) {
   const app = document.getElementById('reactica-app') as Element
-
   const application = (
     <HtmlContext.Provider value={{
       // head,
       docComponentsRendered: {}
     }}>
-      <CookiesProvider context={null}>
+      <CookiesProvider context={document.cookie}>
         <Router>
           <App loadPages={loadPages} />
         </Router>

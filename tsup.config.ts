@@ -14,6 +14,7 @@ export default defineConfig({
         "src/server.tsx",
         "src/client.tsx",
         "src/routes.tsx",
+        "src/cookies.tsx",
         // "src/placeholder-loader.tsx",
     ],
     external: [

@@ -15,7 +15,6 @@ import CookiesContext from 'virtual:reacticajs:cookies-context';
 
 export const CookiesProvider = ({ children, context }: { children: React.ReactNode, context: string | object | null }) => {
     const cookies = new UniversalCookies(context);
-
     const value = {
         set: (key: string, value: any): void => cookies.set(key, value, { path: '/' }),
         get: (key: string): any => cookies.get(key),
