@@ -114,7 +114,16 @@ export const AuthProvider = ({ app, children }: { app: any, children: React.Reac
             // })
             // setToken('token'), storage.set('token', 'a0731ae631bc01dea99f13b3f8ed48fc')
             // setUser({ email }), storage.set('user', { email })
-          },
+            
+            const userObj = {
+                email,
+            }
+
+            cookies?.set("token", "userObj")
+            setToken("userObj")
+            cookies?.set("user", userObj)
+            setUser(userObj)
+        },
           logOut: () => {
             // if (cookies) {
             //     cookies.remove('token')
