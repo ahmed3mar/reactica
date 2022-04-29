@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { hydrate, render } from 'react-dom'
+import { createRoot, hydrateRoot } from 'react-dom/client';
 
 import {
   useRoutes,
@@ -45,16 +45,34 @@ const data = window?.__INITIAL_DATA;
 
 function App({ loadPages }: any) {
 
-  const { routes, Wrapper, App } = loadPages({ state: data });
+  const { routes, Wrapper, App, NotFound } = loadPages({ state: data });
+
+  const renderRoutes = (routes: any) => {
+    // @ts-ignore
+    return routes.map(({ children, path, ...route }, index) => {
+      // remove first /
+      path = path.replace(/^\//, '');
+      return (
+          children ? (
+              <Route key={index} path={path} {...route}>
+                {renderRoutes(children)}
+              </Route>
+          ) : (
+              <Route key={index} path={path} {...route} />
+          )
+      )
+    })
+  }
 
   // @ts-ignore
   const pages = useRoutes(routes);
 
   return (
     <RouterProvider routes={pages}>
+      {/* @ts-ignore */}
       <HelmetProvider>
         <AuthProvider app={App}>
-          <Wrapper>
+          <Wrapper routes={renderRoutes(routes)} NotFound={NotFound}>
             {pages}
           </Wrapper>
         </AuthProvider>
@@ -79,6 +97,9 @@ export async function startClient(loadPages: any) {
     </HtmlContext.Provider>
   );
 
-  if (app.hasChildNodes()) hydrate(application, app)
-  else render(application, app)
+  // if (app.hasChildNodes()) hydrateRoot(app, application)
+  // else {
+    const root = createRoot(app);
+    root.render(application);
+  // }
 }

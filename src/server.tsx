@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Suspense } from 'react'
+import React, { Suspense } from 'react'
 import ReactDOMServer from 'react-dom/server'
 import {
     Route,
@@ -18,14 +18,31 @@ import { HelmetProvider, Helmet } from 'react-helmet-async';
 
 const helmetContext = {};
 
-function App({ routes, Wrapper, context }) {
+function App({ routes, Wrapper, NotFound, context }) {
     const pages = useRoutes(routes);
+
+    const renderRoutes = (routes: any) => {
+        // @ts-ignore
+        return routes.map(({ children, path, ...route }, index) => {
+            // remove first /
+            path = path.replace(/^\//, '');
+            return (
+                children ? (
+                    <Route key={index} path={path} {...route}>
+                        {renderRoutes(children)}
+                    </Route>
+                ) : (
+                    <Route key={index} path={path} {...route} />
+                )
+            )
+        })
+    }
 
     return (
         <HelmetProvider context={helmetContext}>
             <AuthProvider>
                 <RouterProvider serverContext={context} routes={pages}>
-                    <Wrapper>
+                    <Wrapper context={context} routes={renderRoutes(routes)} NotFound={NotFound}>
                         {pages}
                     </Wrapper>
                 </RouterProvider>
@@ -35,20 +52,20 @@ function App({ routes, Wrapper, context }) {
 
 }
 
-export const Application = ({ routes, Wrapper, context }: any) => {
+export const Application = ({ routes, NotFound, Wrapper, context }: any) => {
     return (
         <StaticRouter location={context.url}>
-            <App routes={routes} Wrapper={Wrapper} context={context} />
+            <App routes={routes} NotFound={NotFound} Wrapper={Wrapper} context={context} />
         </StaticRouter>
     )
 }
 
 export const renderString = context => {
-    const { routes, Document, Wrapper } = loadPages(context)
+    const { routes, Document, Wrapper, NotFound } = loadPages(context)
 
     const content = ReactDOMServer.renderToString(
         <CookiesProvider context={context.cookies}>
-            <Application routes={routes} Wrapper={Wrapper} context={context} />
+            <Application routes={routes} NotFound={NotFound} Wrapper={Wrapper} context={context} />
         </CookiesProvider>
     )
 

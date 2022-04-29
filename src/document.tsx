@@ -90,20 +90,11 @@ export class Head extends Component<
     render() {
 
         const {
-            styles,
-            ampPath,
-            inAmpMode,
-            hybridAmp,
-            canonicalBase,
+            // @ts-ignore
+            styles, ampPath, inAmpMode, hybridAmp, canonicalBase,
             // __NEXT_DATA__,
-            dangerousAsPath,
-            headTags,
-            unstable_runtimeJS,
-            unstable_JsPreload,
-            disableOptimizedLoading,
-            optimizeCss,
-            optimizeFonts,
-            runtime,
+            // @ts-ignore
+            dangerousAsPath, headTags, unstable_runtimeJS, unstable_JsPreload, disableOptimizedLoading, optimizeCss, optimizeFonts, runtime,
         } = this.context
 
         const hasConcurrentFeatures = !!runtime
@@ -114,6 +105,7 @@ export class Head extends Component<
 
         // this.context.docComponentsRendered.Head = true
 
+        // @ts-ignore
         let { head, helmetContext } = this.context
 
         let cssPreloads: Array<JSX.Element> = []
@@ -233,7 +225,10 @@ export class Head extends Component<
                 {helmet?.link?.toComponent()}
                 {helmet?.script?.toComponent()}
 
-                {!hasConcurrentFeatures && this.context.isDevelopment && (
+                {!hasConcurrentFeatures &&
+
+        // @ts-ignore
+                this.context.isDevelopment && (
                     <>
                         <style
                             data-next-hide-fouc
@@ -254,7 +249,7 @@ export class Head extends Component<
                         </noscript>
                     </>
                 )}
-                
+
                 <meta name="reactica-head" />
 
                 {head}
@@ -336,7 +331,10 @@ export class Head extends Component<
 
                         {optimizeCss && this.getCssLinks(files)} */}
                         {optimizeCss && <noscript data-n-css={this.props.nonce ?? ''} />}
-                        {this.context.isDevelopment && (
+                        {
+
+        // @ts-ignore
+                        this.context.isDevelopment && (
                             // this element is used to mount development styles so the
                             // ordering matches production
                             // (by default, style-loader injects at the bottom of <head />)

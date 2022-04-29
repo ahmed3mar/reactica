@@ -6,13 +6,17 @@ import { useRouter } from "./router";
 interface LinkProps {
     href?: string;
     name?: string;
+    locale?: string;
+    country?: string;
     children: React.ReactNode | React.ReactNode[];
     rest?: any;
 }
 
-const Link = ({ href, name, children, ...rest }: LinkProps) => {
+const Link = ({ href, locale, country, name, children, ...rest }: LinkProps): any => {
 
     const router = useRouter();
+
+    const { lang, nationality } = router.params;
 
     if (!href && name) {
         // @ts-ignore
@@ -20,6 +24,20 @@ const Link = ({ href, name, children, ...rest }: LinkProps) => {
         if (!href) {
             throw new Error(`Link: route with name "${name}" not found`);
         }
+    }
+
+    if (href?.startsWith("/") && lang && !href.startsWith(`/${lang}`)) {
+        href = `/${lang}-${nationality}${href}`;
+    }
+
+    if (country && nationality) {
+        // change lang with locale in href
+        href = href?.replace(`/${lang}-${nationality}`, `/${lang}-${country}`)
+    }
+
+    if (locale && lang) {
+        // change lang with locale in href
+        href = href?.replace(`/${lang}-`, `/${locale}-`)
     }
 
     const childrenWithProps = React.Children.map(children, child => {

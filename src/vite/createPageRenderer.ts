@@ -26,10 +26,46 @@ function renderPreloadLinks(modules: any, manifest: any) {
     })
     return links
   }
-  
+
+function renderPreloadClientLinks(modules: any, manifest: any) {
+    let links = ''
+    const seen = new Set()
+    modules.forEach((id: any) => {
+      const item = manifest[id]
+      if (item) {
+
+          const file = item.file;
+          const css = item.css;
+
+          links += renderPreloadLink("/" + file)
+          if (css) {
+            for (const cssFile of css) {
+              links += renderPreloadLink("/" + cssFile)
+            }
+          }
+
+
+        // files.forEach((file: any) => {
+        //   if (!seen.has(file)) {
+        //     seen.add(file)
+        //     const filename = basename(file)
+        //     if (manifest[filename]) {
+        //       for (const depFile of manifest[filename]) {
+        //         links += renderPreloadLink(depFile)
+        //         seen.add(depFile)
+        //       }
+        //     }
+        //     links += renderPreloadLink(file)
+        //   }
+        // })
+      }
+    })
+    return links
+  }
+
   function renderPreloadLink(file: any) {
     if (file.endsWith('.js')) {
-      return `<link rel="modulepreload" crossorigin href="${file}">`
+      return `<script type="module" crossorigin src="${file}"></script>`
     } else if (file.endsWith('.css')) {
       return `<link rel="stylesheet" href="${file}">`
     } else if (file.endsWith('.woff')) {
@@ -52,11 +88,14 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
 
     let loadPages;
     let renderString;
+    let preloadLinks;
     if (isProduction) {
         const { renderString: RS, loadPages: LP, ...o } = require(root + '/dist/server/server.js');
 
         // const manifest = require(root + '/dist/ssr-manifest.json');
-        // const preloadLinks = renderPreloadLinks([], manifest)
+        const clientManifest = require(root + '/dist/manifest.json');
+        // const preloadLinks = renderPreloadLinks(["index.html"], clientManifest)
+        preloadLinks = renderPreloadClientLinks(["index.html"], clientManifest)
 
         loadPages = LP
         renderString = RS
@@ -72,8 +111,10 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
 
     const pageContext = pageContextInit;
 
+    const url = pageContext.url.replace(/^\/([a-zA-Z]){2}-([a-zA-Z]){2}/, '');
+
     // @ts-ignore
-    const page = pages.find((page: any) => matchPath(pageContext.url, (page.path ? page.path : '/')));
+    const page = pages.find((page: any) => matchPath(url, (page.path ? page.path : '/')));
 
     // if (page) {
     //     let getInitialProps = Promise.resolve(null);
@@ -104,32 +145,30 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
 
 
     if (page) {
-
-
         const getInitialPropsComponentProps = {
             err: undefined,
             req: '',
             res: '',
-    
-            pathname: '/',
-            query: {},
-            asPath: '/',
+
+            pathname: url,
+            query: pageContext?.query,
+            asPath: url,
             locale: undefined,
             locales: undefined,
             defaultLocale: undefined,
             // AppTree: [Function: AppTree],
             // defaultGetInitialProps: [AsyncFunction: defaultGetInitialProps]
         }
-    
+
         const getInitialPropsAppProps = {
             // AppTree: [Function: AppTree],
             Component: page.component,
             // Component: [Function: Home] { getInitialProps: [AsyncFunction (anonymous)] },
             router:  {
                 route: '/',
-                pathname: '/',
-                query: {},
-                asPath: '/',
+                pathname: url,
+                query: pageContext?.query,
+                asPath: url,
                 isFallback: false,
                 basePath: '',
                 locale: undefined,
@@ -143,7 +182,6 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
             cts: getInitialPropsComponentProps
         }
 
-
         if (page.element.props.app.getInitialProps) {
             const res = await page.element.props.app.getInitialProps(getInitialPropsAppProps)
             if (res && typeof res === "object" && !Array.isArray(res)) {
@@ -154,7 +192,7 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
             } else {
                 console.error('returned an empty object from `getInitialProps`. This de-optimizes and prevents automatic static optimization. https://nextjs.org/docs/messages/empty-object-getInitialProp');
             }
-            
+
             // data.index = routes.findIndex(route => matchPath(urlNoLanguage, route))
         } else if (page?.component?.getInitialProps) {
             contextData['props'] = await page.component.getInitialProps(getInitialPropsComponentProps)
@@ -162,8 +200,9 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
     }
 
     pageContextInit['state'] = contextData;
+    pageContextInit['variables'] = {};
 
-    // console.log('renderStringrenderStringrenderString', 
+    // console.log('renderStringrenderStringrenderString',
     //     await renderString(pageContextInit)
     // )
 
@@ -189,6 +228,10 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
         <script type="module" src="/reactica:start.js"></script>
     `)
 
+    if (isProduction) {
+        html = html.replace('</head>', preloadLinks + '</heade>')
+    }
+
     let css = '';
     // @ts-ignore
     if (global?.css) {
@@ -201,10 +244,16 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
                 </style>
             `
         }).join('')
-    
+
     }
 
-    html = html.replace(`<meta name="reactica-head"/>`, `<script>window.__INITIAL_DATA = ${JSON.stringify(contextData)};</script>${css}`)
+    let variables = '';
+
+    if (Object.keys(pageContextInit['variables']).length > 0) {
+        variables = `<script type="text/javascript">window.__REACTICA_VARS__=${JSON.stringify(pageContextInit['variables'])};<\/script>`;
+    }
+
+    html = html.replace(`<meta name="reactica-head"/>`, `<script>window.__INITIAL_DATA = ${JSON.stringify(contextData)};</script>${variables}${css}`)
 
 
     let cssUrls = new Set(), cssJsUrls = new Set()
@@ -238,7 +287,7 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
     //     return pageContext
     // }
 
-    
+
 
     pageContext.httpResponse = {
         body: html,

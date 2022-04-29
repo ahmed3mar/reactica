@@ -129,7 +129,7 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, LAYOUTS: 
             name: typeof module.meta?.name === "undefined" ? path.substring(1) : module.meta?.name,
             ...route
         })
-    
+
         // const route: RouteProps = {
         //     // @ts-ignore
         //     component: module?.default || Fragment,
@@ -137,14 +137,14 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, LAYOUTS: 
         //     // element: !lazyLoad ? React.createElement(module.default) : React.lazy(module),
         //     // loader: (...args: any) => module().then((mod: any) => mod?.loader?.(...args)),
         // }
-    
+
         // const segments = key
         //     .replace(/\/src\/pages|\.tsx$/g, '')
         //     .replace(/\[\.{3}.+\]/, '*')
         //     .replace(/\[(.+)\]/, ':$1')
         //     .split('/')
         //     .filter(Boolean)
-    
+
         // segments.reduce((parent, segment, index) => {
         //     const path = module?.meta?.path || segment.replace(/index|\./g, '/')
         //     const root = index === 0
@@ -153,11 +153,11 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, LAYOUTS: 
         //     const insert = /^\w|\//.test(path) ? 'unshift' : 'push'
 
         //     console.log('pathpathpathpathpath ->path', parent, segment, index, path, insert)
-    
+
         //     if (root) {
         //         const ignored = path.startsWith(':') || path === '*'
         //         if (ignored) return parent
-    
+
         //         const last = segments.length === 1
         //         if (last) {
         //             routes[insert]({
@@ -179,7 +179,7 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, LAYOUTS: 
         //             return parent
         //         }
         //     }
-    
+
         //     if (root || node) {
         //         const current = root ? routes : parent.children
         //         // @ts-ignore
@@ -190,21 +190,21 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, LAYOUTS: 
         //         // @ts-ignore
         //         return found || (current?.[insert === 'unshift' ? 0 : current.length - 1] as RouteProps)
         //     }
-    
+
         //     if (leaf) {
         //         // @ts-ignore
         //         parent?.children?.[insert]({ path, ...route })
         //     }
-    
+
         //     return parent
         // }, {} as RouteProps)
-    
+
         return routes
     }, [])
 
     const routes = [...regularRoutes, { path: '*', element: <NotFound /> }]
 
-    return { App, Wrapper, Document, routes };
+    return { App, NotFound, Wrapper, Document, routes };
     // return routes.map((item: any) => {
     //     console.log('item', item)
     //     const meta = item.element?.meta;

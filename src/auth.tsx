@@ -72,6 +72,9 @@ export const AuthProvider = ({ app, children }: { app: any, children: React.Reac
             setUser(user)
         } else {
             setToken(false);
+            // @ts-ignore
+            cookies?.remove('token');
+            localStorage.removeItem('token');
         }
 
         setIsChecked(true);
@@ -94,7 +97,17 @@ export const AuthProvider = ({ app, children }: { app: any, children: React.Reac
             isChecked,
         //   ...state,
         //   user,
-          login: (email: string) => {
+          login: async (email: string, password: string) => {
+
+            const user = await app.login({email, password})
+
+            if (user) {
+                cookies?.set("token", user.token)
+                localStorage.setItem('token', user.token);
+                setToken(user.token)
+                setUser(user);
+            }
+
             // dispatch({
             //     type: "LOGIN",
             //     payload: {
@@ -114,15 +127,7 @@ export const AuthProvider = ({ app, children }: { app: any, children: React.Reac
             // })
             // setToken('token'), storage.set('token', 'a0731ae631bc01dea99f13b3f8ed48fc')
             // setUser({ email }), storage.set('user', { email })
-            
-            const userObj = {
-                email,
-            }
 
-            cookies?.set("token", "userObj")
-            setToken("userObj")
-            cookies?.set("user", userObj)
-            setUser(userObj)
         },
           logOut: () => {
             // if (cookies) {
@@ -138,9 +143,9 @@ export const AuthProvider = ({ app, children }: { app: any, children: React.Reac
         // [token, user]
       )
 
-    if (!isChecked) return (
-        <div>Auth Checking !</div>
-    )
+    // if (!isChecked) return (
+    //     <div>Auth Checking !</div>
+    // )
 
     // @ts-ignore
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

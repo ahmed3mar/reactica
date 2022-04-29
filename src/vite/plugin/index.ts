@@ -53,7 +53,7 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
                         return next()
                     }
                     let url = req.url
-                    
+
                     const templatePath = options.clientEntry
                         ? resolve(options.clientEntry)
                         : path.resolve(__dirname + "/index.html")
@@ -90,7 +90,7 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
         resolveId(id) {
             if (id.endsWith('.html')) {
                 const isMPA = typeof config.build.rollupOptions.input !== 'string' && Object.keys(config.build.rollupOptions.input || {}).length > 0
-                
+
                 if (!isMPA) {
                     return `${PREFIX}/${path.basename(id)}`
                 } else {
@@ -327,7 +327,7 @@ export default function framework(config: any) {
 
                 if (c.command === 'serve') {
                     if (ssr && id.endsWith('.css')) {
-                        
+
                         if (!css[id]) {
                             css[id] = code.trim().slice(16, -1).replace(/\\n/gi, "");
 
@@ -340,7 +340,7 @@ export default function framework(config: any) {
                     // build: plugin invoked by Rollup
                   }
 
-                
+
             },
         }
     ]

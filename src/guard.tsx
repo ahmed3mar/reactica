@@ -20,7 +20,7 @@ export const Lazy = ({ component, ...props }: any) => {
         })
    }, [router.pathname])
 
-   if (!data) return <div>Loading...</div>;
+   if (!data) return <div></div>;
 
     return (
         <Guard component={data.Component} {...props} {...data.meta} />
@@ -193,7 +193,7 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
 
 }
 
-const Guard = ({ 
+const Guard = ({
     context, app: App, component: Component, middleware, middlewares, ...other }: {
     context: any,
     app: any,
@@ -216,7 +216,7 @@ const Guard = ({
 
     if (!isBrowser) {
         middleware_list.map(middle => {
-            const the_middle = middlewares[middle] && middlewares[middle]({ 
+            const the_middle = middlewares[middle] && middlewares[middle]({
                 middleware,
                 ...other,
                 user: auth?.user, context: context, router, redirect: router.redirect,
