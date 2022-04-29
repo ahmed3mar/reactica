@@ -59,6 +59,11 @@ export const useRouter = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
+    const { url_locale } = params;
+    if (url_locale) {
+        console.log('url_localexxxurl_locale', url_locale)
+    }
+
     if (!context) throw Error('useRouter should be used within <RouterProvider />')
 
     return {

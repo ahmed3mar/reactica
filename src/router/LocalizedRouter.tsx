@@ -61,29 +61,35 @@ interface Props {
 const LocalizedComponent = ({ NotFound, routes, languages, countries, defaultLanguage = "en", defaultCurrency = "USD" }: any) => {
 
     const {
-        lang,
-        nationality,
+        url_locale,
     } = useParams();
 
     const navigate = useNavigate();
 
     const { pathname } = useRouter();
 
+    let lang = defaultLanguage;
+    let fallbackLang = defaultLanguage;
+    if (url_locale) {
+        fallbackLang = url_locale.split('-')
+        lang = url_locale
+    }
+
     useEffect(() => {
-        if (!lang && !nationality) {
-            navigate(`/${defaultLanguage}-EG${pathname}`, {
+        if (!url_locale) {
+            navigate(`/${defaultLanguage}${pathname}`, {
                 replace: true,
             })
         }
     })
 
-    if (!lang && !nationality) {
+    if (!url_locale) {
         return (
             <div>!!!</div>
         );
     }
 
-    if (lang?.length !== 2 || nationality?.length !== 2) {
+    if (url_locale?.length !== 2 && url_locale?.length !== 5) {
         return (
             <NotFound />
         )
@@ -109,7 +115,7 @@ const LocalizedComponent = ({ NotFound, routes, languages, countries, defaultLan
 
     return (
         // @ts-ignore
-        <IntlProvider locale={lang} messages={appStrings[lang]}>
+        <IntlProvider locale={lang} messages={appStrings[lang] || appStrings[fallbackLang]}>
             <Outlet />
         </IntlProvider>
     )
@@ -119,7 +125,7 @@ const LocalizedComponent = ({ NotFound, routes, languages, countries, defaultLan
 export const LocalizedRouter = ({ NotFound, routes, languages, countries, defaultLanguage, defaultCurrency }: any) => {
     return (
         <Routes>
-            <Route path="/:lang-:nationality" element={<LocalizedComponent {...{NotFound, routes, languages, countries, defaultLanguage, defaultCurrency}} />}>
+            <Route path="/:url_locale" element={<LocalizedComponent {...{NotFound, routes, languages, countries, defaultLanguage, defaultCurrency}} />}>
                 {routes}
             </Route>
             <Route path="*" element={<LocalizedComponent {...{NotFound, routes, languages, countries, defaultLanguage, defaultCurrency}} />}>

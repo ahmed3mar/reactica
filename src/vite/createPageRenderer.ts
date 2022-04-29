@@ -142,6 +142,7 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
 
     const cookies = pageContextInit.req.cookies;
     pageContextInit['cookies'] = cookies;
+    pageContextInit['variables'] = {};
 
 
     if (page) {
@@ -156,6 +157,7 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
             locale: undefined,
             locales: undefined,
             defaultLocale: undefined,
+            vairables: {},
             // AppTree: [Function: AppTree],
             // defaultGetInitialProps: [AsyncFunction: defaultGetInitialProps]
         }
@@ -179,7 +181,8 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
                 isPreview: false,
                 isLocaleDomain: false
             },
-            cts: getInitialPropsComponentProps
+            cts: getInitialPropsComponentProps,
+            vairables: {},
         }
 
         if (page.element.props.app.getInitialProps) {
@@ -197,10 +200,11 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
         } else if (page?.component?.getInitialProps) {
             contextData['props'] = await page.component.getInitialProps(getInitialPropsComponentProps)
         }
+
+        pageContextInit['variables'] = getInitialPropsAppProps['vairables'];
     }
 
     pageContextInit['state'] = contextData;
-    pageContextInit['variables'] = {};
 
     // console.log('renderStringrenderStringrenderString',
     //     await renderString(pageContextInit)

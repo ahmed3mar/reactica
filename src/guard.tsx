@@ -39,9 +39,11 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
     let doRequest = true;
 
 
+    console.log('-----------a-XXXX', isBrowser, context)
     if (isBrowser && context) {
         context.url = router.pathname;
-
+        // @ts-ignore
+        console.log('111111', state.page, router.pathname, path)
         // @ts-ignore
         if (window.__INITIAL_DATA === null) {
 
@@ -49,7 +51,8 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
             if (state.page !== path) {
                 newState = {}
             } else if (context?.state) {
-                newState = state.props;
+                console.log('----------->', context?.state)
+                newState = context?.state?.props;
                 // @ts-ignore
                 doRequest = false;
             }
@@ -70,6 +73,8 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
             newState = state.props;
         }
     }
+
+    // console.log('newState-->newState', context, isBrowser, newState)
 
     // const params = useParams();
 
