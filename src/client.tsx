@@ -44,8 +44,8 @@ import { HelmetProvider } from 'react-helmet-async';
 const data = window?.__INITIAL_DATA;
 
 function App({ loadPages }: any) {
-
-  const { routes, Wrapper, App, NotFound } = loadPages({ state: data });
+// @ts-ignore
+  const { routes, Wrapper, App, NotFound } = loadPages({ state: data, variables: window?.__REACTICA_VARS });
 
   const renderRoutes = (routes: any) => {
     // @ts-ignore
@@ -72,7 +72,10 @@ function App({ loadPages }: any) {
       {/* @ts-ignore */}
       <HelmetProvider>
         <AuthProvider app={App}>
-          <Wrapper routes={renderRoutes(routes)} NotFound={NotFound}>
+          <Wrapper context={{
+            // @ts-ignore
+            state: data, variables: window?.__REACTICA_VARS
+          }} routes={renderRoutes(routes)} NotFound={NotFound}>
             {pages}
           </Wrapper>
         </AuthProvider>

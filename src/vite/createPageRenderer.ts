@@ -113,6 +113,8 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
 
     const url = pageContext.url.replace(/^\/([a-zA-Z]){2}-([a-zA-Z]){2}/, '');
 
+    console.info('url', url);
+
     // @ts-ignore
     const page = pages.find((page: any) => matchPath(url, (page.path ? page.path : '/')));
 
@@ -142,7 +144,7 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
 
     const cookies = pageContextInit.req.cookies;
     pageContextInit['cookies'] = cookies;
-    pageContextInit['variables'] = {};
+    if (!pageContextInit['variables']) pageContextInit['variables'] = {};
 
 
     if (page) {
@@ -201,7 +203,7 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
             contextData['props'] = await page.component.getInitialProps(getInitialPropsComponentProps)
         }
 
-        pageContextInit['variables'] = getInitialPropsAppProps['vairables'];
+        //pageContextInit['variables'] = getInitialPropsAppProps['vairables'];
     }
 
     pageContextInit['state'] = contextData;
@@ -254,7 +256,7 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
     let variables = '';
 
     if (Object.keys(pageContextInit['variables']).length > 0) {
-        variables = `<script type="text/javascript">window.__REACTICA_VARS__=${JSON.stringify(pageContextInit['variables'])};<\/script>`;
+        variables = `<script type="text/javascript">window.__REACTICA_VARS=${JSON.stringify(pageContextInit['variables'])};<\/script>`;
     }
 
     html = html.replace(`<meta name="reactica-head"/>`, `<script>window.__INITIAL_DATA = ${JSON.stringify(contextData)};</script>${variables}${css}`)

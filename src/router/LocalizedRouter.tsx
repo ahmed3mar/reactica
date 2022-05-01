@@ -58,7 +58,7 @@ interface Props {
 //     </RouterComponent>
 // );
 
-const LocalizedComponent = ({ NotFound, routes, languages, countries, defaultLanguage = "en", defaultCurrency = "USD" }: any) => {
+const LocalizedComponent = ({ NotFound, appStrings, languages = [], defaultLanguage = "en", defaultCurrency = "USD" }: any) => {
 
     const {
         url_locale,
@@ -95,23 +95,17 @@ const LocalizedComponent = ({ NotFound, routes, languages, countries, defaultLan
         )
     }
 
+    if (!languages.includes(url_locale)) {
+        return (
+            <NotFound />
+        )
+    }
+
     // if (!pathname.includes(`/${lang}`)) {
     //     return (
     //         <div>{pathname}</div>
     //     )
     // }
-
-
-    const appStrings = {
-        en: {
-            home: "Home",
-            world: "World",
-        },
-        ar: {
-            home: "البيت يا سيدي",
-            world: "Monde",
-        },
-    };
 
     return (
         // @ts-ignore
@@ -122,13 +116,13 @@ const LocalizedComponent = ({ NotFound, routes, languages, countries, defaultLan
 }
 
 
-export const LocalizedRouter = ({ NotFound, routes, languages, countries, defaultLanguage, defaultCurrency }: any) => {
+export const LocalizedRouter = ({ routes, ...other }: any) => {
     return (
         <Routes>
-            <Route path="/:url_locale" element={<LocalizedComponent {...{NotFound, routes, languages, countries, defaultLanguage, defaultCurrency}} />}>
+            <Route path="/:url_locale" element={<LocalizedComponent {...{routes, ...other}} />}>
                 {routes}
             </Route>
-            <Route path="*" element={<LocalizedComponent {...{NotFound, routes, languages, countries, defaultLanguage, defaultCurrency}} />}>
+            <Route path="*" element={<LocalizedComponent {...{routes, ...other}} />}>
                 {routes}
             </Route>
         </Routes>

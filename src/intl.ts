@@ -1,13 +1,28 @@
 import * as intl from "react-intl";
 
-export const trans = (word: string) => {
+export const trans = (word: string, options: any = {}) => {
     const { formatMessage } = intl.useIntl();
-    return formatMessage({ id: word });
+    try {
+        return formatMessage({ id: word, ...options });
+    } catch (err) {
+        return word;
+    }
 }
 
 export const useIntl: any = () => {
+
+    const { locale, ...other } = intl.useIntl();
+
+    let language = locale;
+    if (/([a-zA-Z]){2}-([a-zA-Z]){2}/.test(locale)) {
+        language = locale.split("-")[0];
+    }
+
+
     return {
-        ...intl.useIntl(),
+        locale,
+        ...other,
         trans,
+        language,
     }
 }

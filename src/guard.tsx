@@ -36,14 +36,14 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
     let newState = state;
     newState = {};
 
+    let otherProps = {};
+
     let doRequest = true;
+    path = router.pathname;
 
-
-    console.log('-----------a-XXXX', isBrowser, context)
     if (isBrowser && context) {
         context.url = router.pathname;
-        // @ts-ignore
-        console.log('111111', state.page, router.pathname, path)
+        path = router.pathname;
         // @ts-ignore
         if (window.__INITIAL_DATA === null) {
 
@@ -51,8 +51,14 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
             if (state.page !== path) {
                 newState = {}
             } else if (context?.state) {
-                console.log('----------->', context?.state)
                 newState = context?.state?.props;
+                otherProps = context?.state?.mainProps;
+                if (context?.variables) {
+                    otherProps = {
+                        ...otherProps,
+                        variables: context?.variables,
+                    }
+                }
                 // @ts-ignore
                 doRequest = false;
             }
@@ -71,10 +77,15 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
             newState = {}
         } else {
             newState = state.props;
+            otherProps = state?.mainProps;
+            if (context?.variables) {
+                otherProps = {
+                    ...otherProps,
+                    variables: context?.variables,
+                }
+            }
         }
     }
-
-    // console.log('newState-->newState', context, isBrowser, newState)
 
     // const params = useParams();
 
@@ -183,12 +194,14 @@ const SSR = ({ app: App, component: Component, context = {}, path, ...props }: a
 
     }, [isBrowser ? router.pathname : null]);
 
+
     return (
         <App
             loading={loading}
             pageProps={data[router.pathname] || {}}
             Component={Component}
             router={router}
+            {...otherProps}
         />
     )
 
@@ -258,8 +271,6 @@ const Guard = ({
         // })
     }, [Component, router.pathname, auth?.user])
 
-    // console.log('authChecked', authChecked, router.pathname)
-
     // const isValidGuard = auth ? validGuard({ user: auth?.user, guard: guard }) : true;
 
     // if (typeof isValidGuard === "boolean") {
@@ -295,8 +306,6 @@ const Guard = ({
             // <Component />
         )
     }
-
-    //     console.log('Component', Component)
 
     return (
         <div>

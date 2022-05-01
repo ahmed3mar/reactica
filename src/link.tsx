@@ -16,7 +16,7 @@ const Link = ({ href, locale, country, name, children, ...rest }: LinkProps): an
 
     const router = useRouter();
 
-    const { url_locale } = router.params;
+    const language = router.language;
 
     if (!href && name) {
         // @ts-ignore
@@ -26,19 +26,19 @@ const Link = ({ href, locale, country, name, children, ...rest }: LinkProps): an
         }
     }
 
-    // if (href?.startsWith("/") && lang && !href.startsWith(`/${lang}`)) {
-    //     href = `/${lang}-${nationality}${href}`;
-    // }
+    if (href?.startsWith("/") && router.locale && !href.startsWith(`/${router.locale}`)) {
+        href = `/${router.locale}${href}`;
+    }
 
     // if (country && nationality) {
     //     // change lang with locale in href
     //     href = href?.replace(`/${lang}-${nationality}`, `/${lang}-${country}`)
     // }
 
-    // if (locale && lang) {
-    //     // change lang with locale in href
-    //     href = href?.replace(`/${lang}-`, `/${locale}-`)
-    // }
+    if (locale && language) {
+        // change lang with locale in href
+        href = href?.replace(`/${language}-`, `/${locale}-`)
+    }
 
     const childrenWithProps = React.Children.map(children, child => {
         // Checking isValidElement is the safe way and avoids a typescript

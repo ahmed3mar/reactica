@@ -59,9 +59,16 @@ export const useRouter = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const { url_locale } = params;
+    const { url_locale = "" } = params;
+    let { pathname } = location;
+
+    let language = url_locale;
+    if (/([a-zA-Z]){2}-([a-zA-Z]){2}/.test(url_locale)) {
+        language = url_locale.split("-")[0];
+    }
+
     if (url_locale) {
-        console.log('url_localexxxurl_locale', url_locale)
+        pathname = pathname.replace(`/${url_locale}`, '');
     }
 
     if (!context) throw Error('useRouter should be used within <RouterProvider />')
@@ -70,6 +77,10 @@ export const useRouter = () => {
         ...context,
         params,
         ...location,
+        locale: url_locale,
+        // @ts-ignore
+        pathname,
+        language,
         push: (to: To, options?: NavigateOptions) : void | RedirectTo => {
             if (isBrowser) navigate(to, options)
             else return new RedirectTo(context, to);
