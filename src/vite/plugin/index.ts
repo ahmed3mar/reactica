@@ -104,7 +104,7 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
             }
              else if (id === "virtual:reacticajs:server") {
                 // TODO fix this
-                console.log('===================>', path.resolve(__dirname, '../../server.js'))
+                // console.log('===================>', path.resolve(__dirname, '../../server.js'))
                 return path.resolve(__dirname, '../../../src/server.tsx');
             } else if (id === "virtual:reacticajs:cookies-context") {
                 return "virtual:reacticajs:cookies-context";

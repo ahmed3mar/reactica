@@ -7,19 +7,24 @@ import React from 'react';
 export { Link } from 'react-router-dom'
 
 import {
-    useState,
-    useEffect,
-    createElement,
-    Fragment,
-    FunctionComponent,
-    ReactElement,
-    createContext as reactCreateContext,
-    useContext as reactUseContext,
-  } from 'react'
+  useState,
+  useEffect,
+  createElement,
+  Fragment,
+  FunctionComponent,
+  ReactElement,
+  createContext as reactCreateContext,
+  useContext as reactUseContext,
+} from 'react'
 
 export const ClientOnly: FunctionComponent = ({ children }: any) => {
-    const [mounted, setMounted] = useState(false)
-    useEffect(() => setMounted(true))
-  
-    return mounted ? createElement(Fragment, { children }) : null
-  }
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true))
+
+  return mounted ? createElement(Fragment, { children }) : null
+}
+
+export const clientOnly = (component: any) => {
+  // @ts-ignore
+  return (props: any) => <ClientOnly>{createElement(component, props)}</ClientOnly>
+}
