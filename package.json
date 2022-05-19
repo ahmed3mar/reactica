@@ -1,22 +1,16 @@
 {
   "name": "reactica",
-  "version": "0.0.10",
+  "version": "0.0.16",
   "license": "MIT",
   "bin": {
     "reactica": "bin.js"
   },
   "files": [
     "dist",
-    "link",
-    "router",
-    "auth",
-    "client",
-    "bin.js",
-    "server-entry.js",
     "*.d.ts"
   ],
   "scripts": {
-    "build": "tsup && node build.mjs && cp src/vite/index.html dist/vite/plugin/index.html",
+    "build": "bash ./build.sh",
     "buildx": "yarn build:esm && yarn build:cjs",
     "tsup": "tsup && cp src/vite/index.html dist/vite/index.html",
     "dev": "tsup --watch",
@@ -32,72 +26,74 @@
   "typesVersions": {
     "*": {
       "dist/index.d.ts": [ "dist/index.d.ts" ],
-      "*": [ "dist/*" ]
+      "*": [ "dist/react/*" ]
     }
   },
   "exports": {
-    ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
-    },
-    "./node": "./dist/vite/index.js",
     "./vite": "./dist/vite/plugin/index.js",
+
+
+    ".": {
+      "require": "./dist/react/index.js",
+      "import": "./dist/react/index.mjs",
+      "types": "./dist/react/index.d.ts"
+    },
+    "./node": "./dist/vite/ssr/index.js",
     "./cli": "./dist/cli/index.js",
     "./pages": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/react/index.js",
+      "import": "./dist/react/index.mjs",
+      "types": "./dist/react/index.d.ts"
     },
     "./cookies": {
-      "require": "./dist/cookies.js",
-      "import": "./dist/cookies.mjs",
-      "types": "./dist/cookies.d.ts"
+      "require": "./dist/react/cookies.js",
+      "import": "./dist/react/cookies.mjs",
+      "types": "./dist/react/cookies.d.ts"
     },
     "./auth": {
-      "require": "./dist/auth.js",
-      "import": "./dist/auth.mjs",
-      "types": "./dist/auth.d.ts"
+      "require": "./dist/react/auth.js",
+      "import": "./dist/react/auth.mjs",
+      "types": "./dist/react/auth.d.ts"
     },
     "./head": {
-      "require": "./dist/head.js",
-      "import": "./dist/head.mjs",
-      "types": "./dist/head.d.ts"
+      "require": "./dist/react/head.js",
+      "import": "./dist/react/head.mjs",
+      "types": "./dist/react/head.d.ts"
     },
     "./document": {
-      "require": "./dist/document.js",
-      "import": "./dist/document.mjs",
-      "types": "./dist/document.d.ts"
+      "require": "./dist/react/document.js",
+      "import": "./dist/react/document.mjs",
+      "types": "./dist/react/document.d.ts"
     },
     "./routes": {
-      "require": "./dist/routes.js",
-      "import": "./dist/routes.mjs",
-      "types": "./dist/routes.d.ts"
+      "require": "./dist/react/routes.js",
+      "import": "./dist/react/routes.mjs",
+      "types": "./dist/react/routes.d.ts"
     },
     "./server": {
-      "require": "./dist/server.js",
-      "import": "./dist/server.mjs",
-      "types": "./dist/server.d.ts"
+      "require": "./dist/react/server.js",
+      "import": "./dist/react/server.mjs",
+      "types": "./dist/react/server.d.ts"
     },
     "./intl": {
-      "require": "./dist/intl.js",
-      "import": "./dist/intl.mjs",
-      "types": "./dist/intl.d.ts"
+      "require": "./dist/react/intl.js",
+      "import": "./dist/react/intl.mjs",
+      "types": "./dist/react/intl.d.ts"
     },
     "./client": {
-      "require": "./dist/client.js",
-      "import": "./dist/client.mjs",
-      "types": "./dist/client.d.ts"
+      "require": "./dist/react/client.js",
+      "import": "./dist/react/client.mjs",
+      "types": "./dist/react/client.d.ts"
     },
     "./link": {
-      "require": "./dist/link.js",
-      "import": "./dist/link.mjs",
-      "types": "./dist/link.d.ts"
+      "require": "./dist/react/link.js",
+      "import": "./dist/react/link.mjs",
+      "types": "./dist/react/link.d.ts"
     },
     "./router": {
-      "require": "./dist/router/index.js",
-      "import": "./dist/router/index.mjs",
-      "types": "./dist/router/index.d.ts"
+      "require": "./dist/react/router/index.js",
+      "import": "./dist/react/router/index.mjs",
+      "types": "./dist/react/router/index.d.ts"
     },
     "./placeholder-loader": "./dist/placeholder-loader.mjs",
     "./language-redirect-client": "./dist/language-redirect-client.mjs"

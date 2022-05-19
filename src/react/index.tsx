@@ -17,11 +17,12 @@ import {
   useContext as reactUseContext,
 } from 'react'
 
-export const ClientOnly: FunctionComponent = ({ children }: any) => {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true))
-
-  return mounted ? createElement(Fragment, { children }) : null
+export const ClientOnly = ({ children }: any) => {
+  if (import.meta.env.SSR) {
+    return null
+  } else {
+    return children
+  }
 }
 
 export const clientOnly = (component: any) => {

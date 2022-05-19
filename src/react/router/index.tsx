@@ -8,7 +8,7 @@ type RouterContextProps = {
 }
 
 // @ts-ignore
-import RouterContext from "virtual:reacticajs:context:Router";
+import RouterContext from "virtual:reacticajs:router-context";
 
 // const RouterContext = RC as RouterContextProps;
 

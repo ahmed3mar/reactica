@@ -1,31 +1,4 @@
 import { matchPath } from "./utils/matchPath";
-import path, { basename } from 'path'
-
-// import { matchPath } from 'react-router-dom';
-
-function renderPreloadLinks(modules: any, manifest: any) {
-    let links = ''
-    const seen = new Set()
-    modules.forEach((id: any) => {
-      const files = manifest[id]
-      if (files) {
-        files.forEach((file: any) => {
-          if (!seen.has(file)) {
-            seen.add(file)
-            const filename = basename(file)
-            if (manifest[filename]) {
-              for (const depFile of manifest[filename]) {
-                links += renderPreloadLink(depFile)
-                seen.add(depFile)
-              }
-            }
-            links += renderPreloadLink(file)
-          }
-        })
-      }
-    })
-    return links
-  }
 
 function renderPreloadClientLinks(modules: any, manifest: any) {
     let links = ''
@@ -43,21 +16,6 @@ function renderPreloadClientLinks(modules: any, manifest: any) {
               links += renderPreloadLink("/" + cssFile)
             }
           }
-
-
-        // files.forEach((file: any) => {
-        //   if (!seen.has(file)) {
-        //     seen.add(file)
-        //     const filename = basename(file)
-        //     if (manifest[filename]) {
-        //       for (const depFile of manifest[filename]) {
-        //         links += renderPreloadLink(depFile)
-        //         seen.add(depFile)
-        //       }
-        //     }
-        //     links += renderPreloadLink(file)
-        //   }
-        // })
       }
     })
     return links
@@ -112,8 +70,6 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
     const pageContext = pageContextInit;
 
     const url = pageContext.url.replace(/^\/([a-zA-Z]){2}-([a-zA-Z]){2}/, '');
-
-    console.info('url', url);
 
     // @ts-ignore
     const page = pages.find((page: any) => matchPath(url, (page.path ? page.path : '/')));

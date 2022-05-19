@@ -6,11 +6,22 @@ import { last } from 'lodash'
 import { getHtmlContent } from './lib/utils'
 
 import Inspect from 'vite-plugin-inspect'
-// import Pages from 'vite-plugin-pages'
+import fs from 'fs'
 
 const resolve = (p: string) => path.resolve(process.cwd(), p)
 // must src to corresponding with vite-plugin-mpa#closeBundle hook
 const PREFIX = 'src'
+
+function touch(path: string) {
+    const time = new Date()
+
+    try {
+        fs.utimesSync(path, time, time)
+    }
+    catch (err) {
+        fs.closeSync(fs.openSync(path, 'w'))
+    }
+}
 
 function htmlTemplate(userOptions: UserOptions = {}): Plugin {
     const options = {
@@ -21,9 +32,13 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
         ...userOptions,
     }
     let config: ResolvedConfig
+
+    let configFile = 'vite.config.js'
     return {
         name: 'vite-plugin-reactica',
         configResolved(resolvedConfig) {
+            if (fs.existsSync('vite.config.ts'))
+                configFile = 'vite.config.ts'
             config = resolvedConfig
         },
         config: (config) => {
@@ -46,10 +61,40 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
          * if MPA, check pageName(default is index) and write /${pagesDir}/{pageName}/${entry}.html
          */
         configureServer(server: ViteDevServer) {
+            server.watcher.on('add', handleFileChange)
+            server.watcher.on('change', handleFileChange)
+            server.watcher.on('unlink', handleFileChange)
+
+            function handleFileChange(file: string) {
+                // touch(configFile)
+                // if (micromatch.isMatch(file, restartGlobs)) {
+                //   timerState = 'restart'
+                //   schedule(() => {
+                //     touch(configFile)
+                //     // eslint-disable-next-line no-console
+                //     console.log(
+                //       c.dim(new Date().toLocaleTimeString())
+                //       + c.bold(c.blue(' [plugin-restart] '))
+                //       + c.yellow(`restarting server by ${pathPlatform.relative(root, file)}`),
+                //     )
+                //     timerState = ''
+                //   })
+                // }
+                // else if (micromatch.isMatch(file, reloadGlobs) && timerState !== 'restart') {
+                //   timerState = 'reload'
+                //   schedule(() => {
+                //     server.ws.send({ type: 'full-reload' })
+                //     timerState = ''
+                //   })
+                // }
+            }
+
+
+
             return () => {
                 server.middlewares.use(async (req, res, next) => {
                     // if not html, next it.
-                    if (!req.url?.endsWith('.html')){//} && req.url !== '/') {
+                    if (!req.url?.endsWith('.html')) {//} && req.url !== '/') {
                         return next()
                     }
                     let url = req.url
@@ -102,28 +147,11 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
             } else if (id === "/reactica:start.js") {
                 return "reactica:start.js";
             }
-             else if (id === "virtual:reacticajs:server") {
-                // TODO fix this
-                // console.log('===================>', path.resolve(__dirname, '../../server.js'))
-                return path.resolve(__dirname, '../../../src/server.tsx');
-            } else if (id === "virtual:reacticajs:cookies-context") {
-                return "virtual:reacticajs:cookies-context";
-            } else if (id === "virtual:reacticajs:html-context") {
-                return "virtual:reacticajs:html-context";
-            } else if (id === "virtual:reacticajs:auth-context") {
-                return "virtual:reacticajs:auth-context";
-            } else if (id === "virtual:reacticajs:context") {
-                return "virtual:reacticajs:context";
-            } else if (id.startsWith("virtual:reacticajs:context:")) {
+            else if (id === "virtual:reacticajs:server") {
+                return path.resolve(__dirname, '../../react/src/server.tsx');
+            } if (id.startsWith("virtual:reacticajs:")) {
                 return id
-            } else if (id == "virtual:reacticajs:side-effect") {
-                return path.resolve(__dirname, '../../../src/side-effect.tsx');
             }
-
-            else if (["virtual:reacticajs:pages-sync", "virtual:reacticajs:pages-async"].includes(id)) {
-                return id;
-            }
-
             return null
         },
         /** for dev */
@@ -135,6 +163,12 @@ function htmlTemplate(userOptions: UserOptions = {}): Plugin {
                     import{ createContext } from "react"
                     const ${vara}Context = createContext(null);
                     export default ${vara}Context;
+                `
+            } else if (id === "virtual:reacticajs:router-context") {
+                return `
+                import{ createContext } from "react"
+                const RouterContext = createContext(null);
+                export default RouterContext;
                 `
             } else if (id === "virtual:reacticajs:cookies-context") {
                 return `
@@ -186,86 +220,65 @@ export function useCreateContext<StateType, ActionType>(
   }
   return [useStateCtx, useDispatchCtx, Provider] as const;
 }
-
-// const [useTextState, useTextDispatch, TextProvider] = useCreateContext(initialState, reducer);
-// export const TextContext = ctx;
-// export function App() {
-//   return (
-//     <TextProvider>
-//       <Component />
-//     </TextProvider>
-//   )
-// }
-// export function Component() {
-//   const state = useTextState('state')
-//   const dispatch = useTextDispatch()
-// const increment = useCallback(() => dispatch({ type: 'increment' }), [dispatch]);
-//   return (
-//     <div>
-//       {state}
-//       <button onClick={increment}>Toggle</button>
-//     </div>
-//   )
-// }
-                `
+`
             } else
-            if (id.startsWith(PREFIX)) {
-                const idNoPrefix = id.slice(PREFIX.length)
-                const pageName = path.basename(id).replace('.html', '')
+                if (id.startsWith(PREFIX)) {
+                    const idNoPrefix = id.slice(PREFIX.length)
+                    const pageName = path.basename(id).replace('.html', '')
 
-                const page = options.pages[pageName] || {}
-                const templateOption = page.template
-                const templatePath = templateOption ? resolve(templateOption) : resolve('public/index.html')
+                    const page = options.pages[pageName] || {}
+                    const templateOption = page.template
+                    const templatePath = templateOption ? resolve(templateOption) : resolve('public/index.html')
 
-                const isMPA = typeof config.build?.rollupOptions.input !== 'string' && Object.keys(config.build?.rollupOptions.input || {}).length > 0
-                return getHtmlContent({
-                    // pagesDir: options.pagesDir,
-                    // pageName,
-                    templatePath,
-                    // pageEntry: page.entry || 'main',
-                    // pageTitle: page.title || 'Home Page',
-                    isMPA,
-                    extraData: {
-                        base: config.base,
-                        url: isMPA ? idNoPrefix : '/',
-                    },
-                    data: options.data,
-                    entry: options.entry || '/src/main',
-                })
-            } else if (id === "reactica:start.js") {
-                return `
+                    const isMPA = typeof config.build?.rollupOptions.input !== 'string' && Object.keys(config.build?.rollupOptions.input || {}).length > 0
+                    return getHtmlContent({
+                        // pagesDir: options.pagesDir,
+                        // pageName,
+                        templatePath,
+                        // pageEntry: page.entry || 'main',
+                        // pageTitle: page.title || 'Home Page',
+                        isMPA,
+                        extraData: {
+                            base: config.base,
+                            url: isMPA ? idNoPrefix : '/',
+                        },
+                        data: options.data,
+                        entry: options.entry || '/src/main',
+                    })
+                } else if (id === "reactica:start.js") {
+                    return `
                     import {startClient} from 'reactica/client'
                     import loadPages from 'virtual:reacticajs:pages-async';
                     startClient(loadPages)
                 `
-            } else if (id === "virtual:reacticajs:server") {
-                // return `
-                //     import { Suspense } from 'react'
-                //     import ReactDOM from 'react-dom'
-                //     import {
-                //         BrowserRouter as Router,
-                //         Route,
-                //         Routes,
-                //     } from 'react-router-dom'
-                //
-                //     import routes from '~react-pages'
-                //
-                //     function App() {
-                //         return useRoutes(routes)
-                //     }
-                //
-                //     const Application = () => {
-                //         return (
-                //             <Router>
-                //                 <App />
-                //             </Router>
-                //         )
-                //     }
-                //
-                //     export default App;
-                // `
-            } else if (id === "virtual:reacticajs:pages-sync") {
-                return `
+                } else if (id === "virtual:reacticajs:server") {
+                    // return `
+                    //     import { Suspense } from 'react'
+                    //     import ReactDOM from 'react-dom'
+                    //     import {
+                    //         BrowserRouter as Router,
+                    //         Route,
+                    //         Routes,
+                    //     } from 'react-router-dom'
+                    //
+                    //     import routes from '~react-pages'
+                    //
+                    //     function App() {
+                    //         return useRoutes(routes)
+                    //     }
+                    //
+                    //     const Application = () => {
+                    //         return (
+                    //             <Router>
+                    //                 <App />
+                    //             </Router>
+                    //         )
+                    //     }
+                    //
+                    //     export default App;
+                    // `
+                } else if (id === "virtual:reacticajs:pages-sync") {
+                    return `
                     const PRESERVED = import.meta.globEager('/src/pages/(_app|_wrapper|_document|404).(ts|tsx|js|jsx)')
                     const ROUTES = import.meta.globEager('/src/pages/**/[a-z[]*.(ts|tsx|js|jsx)')
                     const LAYOUTS = import.meta.globEager('/src/pages/**/_layout.(ts|tsx|js|jsx)')
@@ -273,8 +286,8 @@ export function useCreateContext<StateType, ActionType>(
 
                     export default (context) => parseRoutes(context, PRESERVED, ROUTES, LAYOUTS, false);
                 `
-            } else if (id === "virtual:reacticajs:pages-async") {
-                return `
+                } else if (id === "virtual:reacticajs:pages-async") {
+                    return `
                     const PRESERVED = import.meta.globEager('/src/pages/(_app|_wrapper|_document|404).(ts|tsx|js|jsx)')
                     const ROUTES = import.meta.glob('/src/pages/**/[a-z[]*.(ts|tsx|js|jsx)')
                     const LAYOUTS = import.meta.glob('/src/pages/**/_layout.(ts|tsx|js|jsx)')
@@ -283,7 +296,7 @@ export function useCreateContext<StateType, ActionType>(
 
                     export default (context) => parseRoutes(context, PRESERVED, ROUTES, LAYOUTS, true);
                 `
-            }
+                }
 
             return null
         },
@@ -323,7 +336,7 @@ export default function framework(config: any) {
                 // store the resolved config
                 c = resolvedConfig
             },
-            transform (code: any, id: any, {ssr}: any) {
+            transform(code: any, id: any, { ssr }: any) {
 
                 if (c.command === 'serve') {
                     if (ssr && id.endsWith('.css')) {
@@ -336,14 +349,14 @@ export default function framework(config: any) {
                         // console.log('sssss')
                         // return `global.css = (global.css || []).push("${code.trim().slice(16, -1)}")`;
                     }
-                  } else {
+                } else {
                     // build: plugin invoked by Rollup
-                  }
+                }
 
 
             },
         }
     ]
-  }
+}
 
 export type { UserOptions as HtmlTemplateOptions }
