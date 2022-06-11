@@ -1,152 +1,21 @@
 {
-  "name": "reactica",
-  "version": "0.0.16",
-  "license": "MIT",
-  "bin": {
-    "reactica": "bin.js"
-  },
-  "files": [
-    "dist",
-    "*.d.ts"
-  ],
-  "scripts": {
-    "build": "bash ./build.sh",
-    "buildx": "yarn build:esm && yarn build:cjs",
-    "tsup": "tsup && cp src/vite/index.html dist/vite/index.html",
-    "dev": "tsup --watch",
-    "build:esm": "tsc",
-    "build:cjs": "tsc --module commonjs --outDir dist/cjs"
-  },
-  "peerDependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-router-dom": "^6.2.1",
-    "react-intl": "^5.25.1"
-  },
-  "typesVersions": {
-    "*": {
-      "dist/index.d.ts": [ "dist/index.d.ts" ],
-      "*": [ "dist/react/*" ]
+    "name": "reactica",
+    "version": "0.0.17",
+    "license": "MIT",
+    "files": [
+        "dist"
+    ],
+    "scripts": {},
+    "peerDependencies": {
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-router-dom": "^6.2.1"
+    },
+    "exports": {},
+    "dependencies": {},
+    "devDependencies": {
+        "tsup": "^6.1.2",
+        "vite": "^2.9.12",
+        "vite-plugin-inspect": "^0.5.0"
     }
-  },
-  "exports": {
-    "./vite": "./dist/vite/plugin/index.js",
-
-
-    ".": {
-      "require": "./dist/react/index.js",
-      "import": "./dist/react/index.mjs",
-      "types": "./dist/react/index.d.ts"
-    },
-    "./node": "./dist/vite/ssr/index.js",
-    "./cli": "./dist/cli/index.js",
-    "./pages": {
-      "require": "./dist/react/index.js",
-      "import": "./dist/react/index.mjs",
-      "types": "./dist/react/index.d.ts"
-    },
-    "./cookies": {
-      "require": "./dist/react/cookies.js",
-      "import": "./dist/react/cookies.mjs",
-      "types": "./dist/react/cookies.d.ts"
-    },
-    "./auth": {
-      "require": "./dist/react/auth.js",
-      "import": "./dist/react/auth.mjs",
-      "types": "./dist/react/auth.d.ts"
-    },
-    "./head": {
-      "require": "./dist/react/head.js",
-      "import": "./dist/react/head.mjs",
-      "types": "./dist/react/head.d.ts"
-    },
-    "./document": {
-      "require": "./dist/react/document.js",
-      "import": "./dist/react/document.mjs",
-      "types": "./dist/react/document.d.ts"
-    },
-    "./routes": {
-      "require": "./dist/react/routes.js",
-      "import": "./dist/react/routes.mjs",
-      "types": "./dist/react/routes.d.ts"
-    },
-    "./server": {
-      "require": "./dist/react/server.js",
-      "import": "./dist/react/server.mjs",
-      "types": "./dist/react/server.d.ts"
-    },
-    "./intl": {
-      "require": "./dist/react/intl.js",
-      "import": "./dist/react/intl.mjs",
-      "types": "./dist/react/intl.d.ts"
-    },
-    "./client": {
-      "require": "./dist/react/client.js",
-      "import": "./dist/react/client.mjs",
-      "types": "./dist/react/client.d.ts"
-    },
-    "./link": {
-      "require": "./dist/react/link.js",
-      "import": "./dist/react/link.mjs",
-      "types": "./dist/react/link.d.ts"
-    },
-    "./router": {
-      "require": "./dist/react/router/index.js",
-      "import": "./dist/react/router/index.mjs",
-      "types": "./dist/react/router/index.d.ts"
-    },
-    "./placeholder-loader": "./dist/placeholder-loader.mjs",
-    "./language-redirect-client": "./dist/language-redirect-client.mjs"
-  },
-  "dependencies": {
-    "@loadable/server": "^5.15.2",
-    "debug": "^4.3.3",
-    "deep-equal": "^2.0.5",
-    "fast-glob": "^3.2.11",
-    "json5": "^2.2.0",
-    "local-pkg": "^0.4.1",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-helmet-async": "^1.2.3",
-    "react-intl": "^5.25.1",
-    "react-router-dom": "^6.2.1",
-    "yaml": "^2.0.0-10"
-  },
-  "devDependencies": {
-    "@antfu/utils": "^0.5.0",
-    "@brillout/libassert": "^0.5.4",
-    "@hannoeru/eslint-config": "^0.6.0",
-    "@types/debug": "^4.1.7",
-    "@types/deep-equal": "^1.0.1",
-    "@types/glob-to-regexp": "^0.4.1",
-    "@types/lodash": "^4.14.178",
-    "@types/node": "^17.0.18",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
-    "@vitejs/plugin-react": "^1.2.0",
-    "@vitest/ui": "^0.4.1",
-    "@vue/compiler-sfc": "^3.2.31",
-    "bumpp": "^7.1.1",
-    "cross-env": "^7.0.3",
-    "devalue": "^2.0.1",
-    "esbuild": "^0.14.23",
-    "esbuild-node-externals": "^1.4.1",
-    "eslint": "^8.9.0",
-    "esno": "^0.14.1",
-    "html-entities": "^2.3.2",
-    "node-fetch": "^2.6.6",
-    "open": "^8.4.0",
-    "playwright": "^1.19.1",
-    "react-ssr-prepass": "^1.5.0",
-    "solid-app-router": "^0.3.0",
-    "tsup": "^5.11.13",
-    "typescript": "^4.5.5",
-    "universal-cookie": "^4.0.4",
-    "vite": "^2.8.4",
-    "vite-plugin-inspect": "^0.3.14",
-    "vite-plugin-pages": "^0.20.2",
-    "vite-plugin-virtual": "^0.1.1",
-    "vitest": "^0.4.1",
-    "vue-router": "^4.0.12"
-  }
 }
