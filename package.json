@@ -34,7 +34,12 @@
             "require": "./dist/react/index.js",
             "import": "./dist/react/index.mjs",
             "types": "./dist/react/index.d.ts"
-          },
+        },
+        "./server": {
+            "require": "./dist/react/server.js",
+            "import": "./dist/react/server.mjs",
+            "types": "./dist/react/server.d.ts"
+        },
         "./client": {
             "require": "./dist/react/client.js",
             "import": "./dist/react/client.mjs",

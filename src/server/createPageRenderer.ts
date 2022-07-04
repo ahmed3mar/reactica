@@ -60,7 +60,7 @@ const renderPage = async (viteDevServer: any, isProduction: boolean, root: strin
         renderString = RS
     } else {
         // const { render } = await viteDevServer.ssrLoadModule("pages/_document");
-        let {renderString: renderStringF} = await viteDevServer.ssrLoadModule("virtual:reactica:server");
+        let {renderString: renderStringF} = await viteDevServer.ssrLoadModule("reactica/server");
         renderString = renderStringF;
 
         loadPages = (await viteDevServer.ssrLoadModule("virtual:reactica:pages-sync")).default;

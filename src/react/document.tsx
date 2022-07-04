@@ -64,7 +64,6 @@ export const Html = (props: React.DetailedHTMLProps<
 
     const { inAmpMode, docComponentsRendered, locale } = useContext(HtmlContext)
     console.log('useContext(HtmlContext)', useContext(HtmlContext));
-    
 
     return (
         <html
@@ -351,6 +350,8 @@ export class Head extends Component<
 
 export function Main() {
     const { docComponentsRendered } = useContext(HtmlContext)
+    console.log('docComponentsRendered', docComponentsRendered);
+
     docComponentsRendered.Main = true
     // @ts-ignore
     return <div id="reactica-app"></div>

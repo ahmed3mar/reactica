@@ -19,7 +19,7 @@ import {
 
 export const ClientOnly = ({ children }: any) => {
   // @ts-ignore
-  if (import.meta?.env?.SSR) {
+  if (typeof window !== 'undefined') {
     return null
   } else {
     return children

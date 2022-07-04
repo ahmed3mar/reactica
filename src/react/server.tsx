@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { Suspense } from 'react'
+import React, { Suspense, useContext } from 'react'
 import ReactDOMServer from 'react-dom/server'
 import {
     Route,
@@ -13,8 +13,10 @@ import { StaticRouter } from "react-router-dom/server";
 import { RouterProvider } from './router';
 import { AuthProvider } from './auth';
 import { CookiesProvider } from './cookies';
-import { HtmlProvider } from './html-context';
+import { HtmlContext, HtmlProvider } from './html-context';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
+
+import { parseRoutes } from './routes';
 
 const helmetContext = {};
 
@@ -60,14 +62,32 @@ export const Application = ({ routes, NotFound, Wrapper, context }: any) => {
     )
 }
 
-export const renderString = context => {
-    const { routes, Document, Wrapper, NotFound } = loadPages(context)
+const Document = () => {
+    console.log('------------ context !!!!', useContext(HtmlContext));
 
-    const content = ReactDOMServer.renderToString(
-        <CookiesProvider context={context.cookies}>
-            <Application routes={routes} NotFound={NotFound} Wrapper={Wrapper} context={context} />
-        </CookiesProvider>
+    return (
+        <div>
+            ----
+        </div>
     )
+}
+
+export const renderString = context => {
+    const PRESERVED = import.meta.globEager('/src/pages/(_app|_wrapper|_document|404).(ts|tsx|js|jsx)')
+    const ROUTES = import.meta.globEager('/src/pages/**/[a-z[]*.(ts|tsx|js|jsx)')
+    const LAYOUTS = import.meta.globEager('/src/pages/**/_layout.(ts|tsx|js|jsx)')
+
+    const { routes, Document, Wrapper, NotFound } = parseRoutes(context, PRESERVED, ROUTES, LAYOUTS, false)
+    // const { routes, Document, Wrapper, NotFound } = loadPages(context)
+
+    console.log('XDocument', Document);
+    
+
+    // const content = ReactDOMServer.renderToString(
+    //     <CookiesProvider context={context.cookies}>
+    //         <Application routes={routes} NotFound={NotFound} Wrapper={Wrapper} context={context} />
+    //     </CookiesProvider>
+    // )
 
     const html = ReactDOMServer.renderToString(
         <HtmlProvider value={{
@@ -79,5 +99,5 @@ export const renderString = context => {
         </HtmlProvider>
     );
 
-    return html.replace('<div id="reactica-app"></div>', `<div id="reactica-app">${content}</div>`)
+    return html.replace('<div id="reactica-app"></div>', `<div id="reactica-app">XXX</div>`)
 }

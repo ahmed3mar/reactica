@@ -33,7 +33,8 @@ export const parseRoutes = (context: any, PRESERVED: any, ROUTES: any, LAYOUTS: 
     const Wrapper = preservedRoutes?.['_wrapper'] || Fragment
     const Document = preservedRoutes?.['_document'] || DocumentComponent
 
-
+    console.log('Document', Document);
+    
     // @ts-ignore
     const middlewares = App.middlewares || {
         'auth': ({ pageProps, next, user, router }: any) => {
